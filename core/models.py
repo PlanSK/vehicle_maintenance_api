@@ -10,13 +10,15 @@ from sqlalchemy.orm import (
     declared_attr,
 )
 
+DB_PREFIX = "api_"
+
 
 class BaseDbModel(DeclarativeBase):
     __abstract__ = True
 
     @declared_attr.directive
     def __tablename__(cls) -> str:
-        return f"api_{cls.__name__.lower()}s"
+        return f"{DB_PREFIX}{cls.__name__.lower()}s"
 
     id: Mapped[int] = mapped_column(primary_key=True)
 
@@ -33,7 +35,7 @@ class User(BaseDbModel):
 
 class Vehicle(BaseDbModel):
     owner_id: Mapped[int] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE")
+        ForeignKey("{DB_PREFIX}users.id", ondelete="CASCADE")
     )
     owner: Mapped["User"] = relationship(back_populates="vehicles")
     vin_code: Mapped[str] = mapped_column(String(17), unique=True, index=True)
@@ -53,24 +55,27 @@ class WorkPattern(BaseDbModel):
     interval_km: Mapped[int]
 
 
-class Work(WorkPattern):
+class Work(BaseDbModel):
     vehicle_id: Mapped[int] = mapped_column(
-        ForeignKey("vehicles.id", ondelete="CASCADE")
+        ForeignKey("{DB_PREFIX}vehicles.id", ondelete="CASCADE")
     )
     vehicle: Mapped["Vehicle"] = relationship(back_populates="works")
+    title: Mapped[str]
+    interval_month: Mapped[int]
+    interval_km: Mapped[int]
     work_type: Mapped[int]
     note: Mapped[str]
 
 
 class Event(BaseDbModel):
     vehicle_id: Mapped[int] = mapped_column(
-        ForeignKey("vehicles.id", ondelete="CASCADE")
+        ForeignKey("{DB_PREFIX}vehicles.id", ondelete="CASCADE")
     )
     vehicle: Mapped["Vehicle"] = relationship(back_populates="events")
     work_date: Mapped[datetime.date]
     mileage: Mapped[int]
     work_id: Mapped[int] = mapped_column(
-        ForeignKey("works.id", ondelete="CASCADE")
+        ForeignKey("{DB_PREFIX}works.id", ondelete="CASCADE")
     )
     work: Mapped["Work"] = relationship()
     part_price: Mapped[float]
@@ -80,7 +85,7 @@ class Event(BaseDbModel):
 
 class MileageEvent(BaseDbModel):
     vehicle_id: Mapped[int] = mapped_column(
-        ForeignKey("vehicles.id", ondelete="CASCADE")
+        ForeignKey("{DB_PREFIX}vehicles.id", ondelete="CASCADE")
     )
     mileage_date: Mapped[datetime.date]
     mileage: Mapped[int]
