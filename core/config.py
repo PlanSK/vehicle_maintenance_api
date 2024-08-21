@@ -12,6 +12,7 @@ load_dotenv()
 
 
 class Setting(BaseSettings):
+    api_v1_prefix: str = "/api/v1"
     db_name: str = os.getenv("DB_FILENAME", "db.sqlite3")
     db_path: str = os.path.join(BASE_DIR, db_name)
     db_url: str = f"{SQLITE_URL}{db_path}"

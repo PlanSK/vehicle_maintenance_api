@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from core.config import settings
 from core.models import BaseDbModel
 from core.database import db_interface
+from api_v1 import router as router_v1
 
 import uvicorn
 
@@ -16,7 +17,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
+app.include_router(router=router_v1, prefix=settings.api_v1_prefix)
 
 @app.get("/")
 def read_root():
