@@ -35,7 +35,7 @@ class User(BaseDbModel):
 
 class Vehicle(BaseDbModel):
     owner_id: Mapped[int] = mapped_column(
-        ForeignKey("{DB_PREFIX}users.id", ondelete="CASCADE")
+        ForeignKey(f"{DB_PREFIX}users.id", ondelete="CASCADE")
     )
     owner: Mapped["User"] = relationship(back_populates="vehicles")
     vin_code: Mapped[str] = mapped_column(String(17), unique=True, index=True)
@@ -57,7 +57,7 @@ class WorkPattern(BaseDbModel):
 
 class Work(BaseDbModel):
     vehicle_id: Mapped[int] = mapped_column(
-        ForeignKey("{DB_PREFIX}vehicles.id", ondelete="CASCADE")
+        ForeignKey(f"{DB_PREFIX}vehicles.id", ondelete="CASCADE")
     )
     vehicle: Mapped["Vehicle"] = relationship(back_populates="works")
     title: Mapped[str]
@@ -69,13 +69,13 @@ class Work(BaseDbModel):
 
 class Event(BaseDbModel):
     vehicle_id: Mapped[int] = mapped_column(
-        ForeignKey("{DB_PREFIX}vehicles.id", ondelete="CASCADE")
+        ForeignKey(f"{DB_PREFIX}vehicles.id", ondelete="CASCADE")
     )
     vehicle: Mapped["Vehicle"] = relationship(back_populates="events")
     work_date: Mapped[datetime.date]
     mileage: Mapped[int]
     work_id: Mapped[int] = mapped_column(
-        ForeignKey("{DB_PREFIX}works.id", ondelete="CASCADE")
+        ForeignKey(f"{DB_PREFIX}works.id", ondelete="CASCADE")
     )
     work: Mapped["Work"] = relationship()
     part_price: Mapped[float]
@@ -85,7 +85,7 @@ class Event(BaseDbModel):
 
 class MileageEvent(BaseDbModel):
     vehicle_id: Mapped[int] = mapped_column(
-        ForeignKey("{DB_PREFIX}vehicles.id", ondelete="CASCADE")
+        ForeignKey(f"{DB_PREFIX}vehicles.id", ondelete="CASCADE")
     )
     mileage_date: Mapped[datetime.date]
     mileage: Mapped[int]
