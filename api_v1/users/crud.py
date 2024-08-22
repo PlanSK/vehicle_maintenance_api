@@ -11,7 +11,7 @@ from typing import Coroutine, Any
 
 from core.models import User
 
-from .schemas import UserCreate
+from .schemas import UserCreate, UserUpdate, UserUpdatePart
 
 
 async def get_users(session: AsyncSession) -> list[User]:
@@ -21,15 +21,30 @@ async def get_users(session: AsyncSession) -> list[User]:
     return users_list
 
 
-async def get_user(
-    session: AsyncSession, user_id: int
-) -> User | None:
+async def get_user(session: AsyncSession, user_id: int) -> User | None:
     return await session.get(User, user_id)
 
 
-async def user_create(session: AsyncSession, user_data: UserCreate) -> User:
+async def create_user(session: AsyncSession, user_data: UserCreate) -> User:
     user = User(**user_data.model_dump())
     session.add(user)
     await session.commit()
     await session.refresh(user)
     return user
+
+
+async def update_user(
+    session: AsyncSession,
+    user: User,
+    user_update: UserUpdate | UserUpdatePart,
+    partial: bool = False,
+) -> User:
+    for name, value in user_update.model_dump(exclude_unset=partial).items():
+        setattr(user, name, value)
+    await session.commit()
+    return user
+
+
+async def delete_user(session: AsyncSession, user: User) -> None:
+    await session.delete(user)
+    await session.commit()

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, Depends
 
 from core.database import db_interface
 from . import crud
@@ -15,11 +15,11 @@ async def get_users(session=Depends(db_interface.scoped_session_dependency)):
 
 
 @router.post("/", response_model=User)
-async def user_create(
+async def create_user(
     user_data: UserCreate,
     session=Depends(db_interface.scoped_session_dependency),
 ):
-    return await crud.user_create(session=session, user_data=user_data)
+    return await crud.create_user(session=session, user_data=user_data)
 
 
 @router.get("/{user_id}/", response_model=User)
