@@ -17,7 +17,7 @@ class Setting(BaseSettings):
     db_path: str = os.path.join(BASE_DIR, db_name)
     db_url: str = f"{SQLITE_URL}{db_path}"
     db_echo: bool = bool(int(os.getenv("DB_ECHO", 0)))
-    secret_key: str = os.getenv("SECRET_KEY", "")
+    secret_key: str = os.getenv("SECRET_KEY", "test")
 
 
 settings = Setting()
