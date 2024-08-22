@@ -1,9 +1,4 @@
-"""
-Create
-Read
-Update
-Delete
-"""
+import hashlib
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import Result, select
@@ -12,6 +7,7 @@ from typing import Coroutine, Any
 from core.models import User
 
 from .schemas import UserCreate, UserUpdate, UserUpdatePart
+from .schemas import User as UserSchema
 
 
 async def get_users(session: AsyncSession) -> list[User]:
@@ -35,16 +31,16 @@ async def create_user(session: AsyncSession, user_data: UserCreate) -> User:
 
 async def update_user(
     session: AsyncSession,
-    user: User,
+    user: UserSchema,
     user_update: UserUpdate | UserUpdatePart,
     partial: bool = False,
-) -> User:
+) -> UserSchema:
     for name, value in user_update.model_dump(exclude_unset=partial).items():
         setattr(user, name, value)
     await session.commit()
     return user
 
 
-async def delete_user(session: AsyncSession, user: User) -> None:
+async def delete_user(session: AsyncSession, user: UserSchema) -> None:
     await session.delete(user)
     await session.commit()
