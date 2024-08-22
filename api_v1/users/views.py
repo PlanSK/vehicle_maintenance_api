@@ -3,6 +3,8 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from core.database import db_interface
 from . import crud
 from .schemas import UserCreate, User
+from .dependencies import user_by_id
+
 
 router = APIRouter(tags=["Users"])
 
@@ -21,14 +23,5 @@ async def user_create(
 
 
 @router.get("/{user_id}/", response_model=User)
-async def get_user(
-    user_id: int, session=Depends(db_interface.scoped_session_dependency)
-):
-    user = await crud.get_user(user_id=user_id, session=session)
-    if user is not None:
-        return user
-
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"User with id {user_id} not found.",
-    )
+async def get_user(user: User = Depends(user_by_id)):
+    return user
