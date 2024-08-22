@@ -1,3 +1,5 @@
+import hashlib
+import os
 from typing import Annotated
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -5,6 +7,7 @@ from fastapi import Path, Depends, HTTPException, status
 
 from core.database import db_interface
 from core.models import User
+from core.config import settings
 
 from . import crud
 
@@ -21,3 +24,15 @@ async def user_by_id(
         status_code=status.HTTP_404_NOT_FOUND,
         detail=f"User with id {user_id} not found.",
     )
+
+
+def get_password_hash(unhashed_password: str) -> str:
+    bytes_password = unhashed_password.encode("utf-8")
+    hash = hashlib.pbkdf2_hmac(
+        "sha512",
+        unhashed_password.encode("utf-8"),
+        settings.secret_key.encode("utf-8"),
+        1024,
+        32
+    )
+    return hash.hex()

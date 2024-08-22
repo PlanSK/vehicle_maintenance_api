@@ -1,5 +1,3 @@
-import hashlib
-
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import Result, select
 from typing import Coroutine, Any
@@ -9,6 +7,7 @@ from core.models import User
 from .schemas import UserCreate, UserUpdate, UserUpdatePart
 from .schemas import User as UserSchema
 
+from .dependencies import get_password_hash
 
 async def get_users(session: AsyncSession) -> list[User]:
     statement = select(User).order_by(User.id)
@@ -22,7 +21,10 @@ async def get_user(session: AsyncSession, user_id: int) -> User | None:
 
 
 async def create_user(session: AsyncSession, user_data: UserCreate) -> User:
-    user = User(**user_data.model_dump())
+    user_data_dict = user_data.model_dump()
+    unhased_password = user_data_dict.pop('password')
+    user_data_dict['hashed_password'] = get_password_hash(unhased_password)
+    user = User(**user_data_dict)
     session.add(user)
     await session.commit()
     await session.refresh(user)

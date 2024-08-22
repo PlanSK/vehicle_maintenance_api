@@ -6,11 +6,10 @@ class UserBase(BaseModel):
     first_name: str
     last_name: str
     user_email: EmailStr
-    hashed_password: str
 
 
 class UserCreate(UserBase):
-    pass
+    password: str
 
 
 class UserUpdate(UserCreate):
@@ -29,3 +28,4 @@ class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    hashed_password: str
