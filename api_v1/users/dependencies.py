@@ -1,9 +1,9 @@
 import hashlib
-import os
 from typing import Annotated
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Path, Depends, HTTPException, status
+from loguru import logger
 
 from core.database import db_interface
 from core.models import User
@@ -27,12 +27,15 @@ async def user_by_id(
 
 
 def get_password_hash(unhashed_password: str) -> str:
-    bytes_password = unhashed_password.encode("utf-8")
+    if settings.secret_key == "test":
+        logger.warning(
+            "SECRET_KEY variable is not defined! Using test secret key."
+        )
     hash = hashlib.pbkdf2_hmac(
         "sha512",
         unhashed_password.encode("utf-8"),
         settings.secret_key.encode("utf-8"),
         1024,
-        32
+        32,
     )
     return hash.hex()
