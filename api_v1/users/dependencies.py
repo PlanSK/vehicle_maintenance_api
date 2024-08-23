@@ -24,18 +24,3 @@ async def user_by_id(
         status_code=status.HTTP_404_NOT_FOUND,
         detail=f"User with id {user_id} not found.",
     )
-
-
-def get_password_hash(unhashed_password: str) -> str:
-    if settings.secret_key == "test":
-        logger.warning(
-            "SECRET_KEY variable is not defined! Using test secret key."
-        )
-    hash = hashlib.pbkdf2_hmac(
-        "sha512",
-        unhashed_password.encode("utf-8"),
-        settings.secret_key.encode("utf-8"),
-        1024,
-        32,
-    )
-    return hash.hex()

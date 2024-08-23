@@ -3,11 +3,11 @@ from sqlalchemy import Result, select
 from typing import Coroutine, Any
 
 from core.models import User
+from core.common import get_password_hash
 
 from .schemas import UserCreate, UserUpdate, UserUpdatePart
 from .schemas import User as UserSchema
 
-from .dependencies import get_password_hash
 
 async def get_users(session: AsyncSession) -> list[User]:
     statement = select(User).order_by(User.id)
@@ -22,8 +22,8 @@ async def get_user(session: AsyncSession, user_id: int) -> User | None:
 
 async def create_user(session: AsyncSession, user_data: UserCreate) -> User:
     user_data_dict = user_data.model_dump()
-    unhased_password = user_data_dict.pop('password')
-    user_data_dict['hashed_password'] = get_password_hash(unhased_password)
+    unhased_password = user_data_dict.pop("password")
+    user_data_dict["hashed_password"] = get_password_hash(unhased_password)
     user = User(**user_data_dict)
     session.add(user)
     await session.commit()
