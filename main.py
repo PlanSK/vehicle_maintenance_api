@@ -2,8 +2,6 @@ from contextlib import asynccontextmanager
 from typing import Union
 from fastapi import FastAPI
 from core.config import settings
-from core.models import BaseDbModel
-from core.database import db_interface
 from api_v1 import router as router_v1
 
 import uvicorn
@@ -11,8 +9,6 @@ import uvicorn
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    async with db_interface.engine.begin() as connection:
-        await connection.run_sync(BaseDbModel.metadata.create_all)
     yield
 
 
