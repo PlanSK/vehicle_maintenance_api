@@ -31,5 +31,6 @@ class MileageEvent(BaseDbModel):
     vehicle_id: Mapped[int] = mapped_column(
         ForeignKey(f"{DB_PREFIX}vehicles.id", ondelete="CASCADE")
     )
+    vehicle: Mapped["Vehicle"] = relationship(back_populates="mileage_events")
     mileage_date: Mapped[datetime.date]
     mileage: Mapped[int]

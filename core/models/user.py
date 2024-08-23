@@ -16,4 +16,4 @@ class User(BaseDbModel):
     user_email: Mapped[str] = mapped_column(unique=True)
     hashed_password: Mapped[str]
     is_active: Mapped[bool] = mapped_column(default=True)
-    vehicles: Mapped[list["Vehicle"]] = relationship()
+    vehicles: Mapped[list["Vehicle"]] = relationship(back_populates="owner")
