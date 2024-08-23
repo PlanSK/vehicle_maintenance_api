@@ -21,7 +21,6 @@ class UserUpdatePart(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     user_email: EmailStr | None = None
-    hashed_password: str | None = None
 
 
 class User(UserBase):
