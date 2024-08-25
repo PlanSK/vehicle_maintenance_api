@@ -39,4 +39,4 @@ class DatabaseInterface:
         await session.close()
 
 
-db_interface = DatabaseInterface(url=settings.db_url, echo=settings.db_echo)
+db_interface = DatabaseInterface(url=settings.db.url, echo=settings.db.echo)
