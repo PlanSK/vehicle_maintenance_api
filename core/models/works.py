@@ -1,12 +1,7 @@
-from typing import TYPE_CHECKING
+from sqlalchemy.orm import Mapped
 
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-
-from .base import DB_PREFIX, BaseDbModel
-
-if TYPE_CHECKING:
-    from .vehicle import Vehicle
+from .base import BaseDbModel
+from .mixins import VehicleRelationMixin
 
 
 class WorkPattern(BaseDbModel):
@@ -15,11 +10,9 @@ class WorkPattern(BaseDbModel):
     interval_km: Mapped[int]
 
 
-class Work(BaseDbModel):
-    vehicle_id: Mapped[int] = mapped_column(
-        ForeignKey(f"{DB_PREFIX}vehicles.id", ondelete="CASCADE")
-    )
-    vehicle: Mapped["Vehicle"] = relationship(back_populates="works")
+class Work(VehicleRelationMixin, BaseDbModel):
+    _vehicle_back_populates="works"
+
     title: Mapped[str]
     interval_month: Mapped[int]
     interval_km: Mapped[int]
