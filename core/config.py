@@ -5,7 +5,6 @@ from dotenv import load_dotenv
 from pydantic import BaseModel
 from pydantic_settings import BaseSettings
 
-
 BASE_DIR = Path(__file__).parent.parent
 
 load_dotenv()

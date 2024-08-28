@@ -1,12 +1,11 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import Result, select
-from typing import Coroutine, Any
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.models import User
 from core.common import get_password_hash
+from core.models import User
 
-from .schemas import UserCreate, UserUpdate, UserUpdatePart
 from .schemas import User as UserSchema
+from .schemas import UserCreate, UserUpdate, UserUpdatePart
 
 
 async def get_users(session: AsyncSession) -> list[User]:

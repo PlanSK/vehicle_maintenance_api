@@ -1,7 +1,7 @@
 from typing import Annotated
-from pydantic import AfterValidator
 
 from loguru import logger
+from pydantic import AfterValidator
 
 ALLOWED_VIN_LETTERS: str = "ABCDEFGHJKLMNPRSTUVWXYZ"
 

@@ -1,13 +1,10 @@
-import hashlib
 from typing import Annotated
 
+from fastapi import Depends, HTTPException, Path, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import Path, Depends, HTTPException, status
-from loguru import logger
 
 from core.database import db_interface
 from core.models import User
-from core.config import settings
 
 from . import crud
 

@@ -1,8 +1,8 @@
 from sqlalchemy.orm import (
-    Mapped,
-    mapped_column,
     DeclarativeBase,
+    Mapped,
     declared_attr,
+    mapped_column,
 )
 
 DB_PREFIX = "api_"

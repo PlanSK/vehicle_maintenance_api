@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import BaseDbModel, DB_PREFIX
+from .base import DB_PREFIX, BaseDbModel
 from .mixins import VehicleRelationMixin
 
 if TYPE_CHECKING:

@@ -1,14 +1,14 @@
 import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import BaseDbModel, DB_PREFIX
+from .base import DB_PREFIX, BaseDbModel
 
 if TYPE_CHECKING:
-    from .user import User
     from .events import Event, MileageEvent
+    from .user import User
     from .works import Work
 
 

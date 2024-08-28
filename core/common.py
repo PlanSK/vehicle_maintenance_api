@@ -1,4 +1,5 @@
 import hashlib
+
 from loguru import logger
 
 from core.config import settings
@@ -12,7 +13,7 @@ def get_password_hash(unhashed_password: str) -> str:
             f"SECRET_KEY variable is not defined."
             f"This function cant't work without this key!"
         )
-        raise ValueError('SECRET_KEY variable is not defined.')
+        raise ValueError("SECRET_KEY variable is not defined.")
     hash = hashlib.pbkdf2_hmac(
         algorithm,
         unhashed_password.encode("utf-8"),

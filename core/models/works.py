@@ -11,7 +11,7 @@ class WorkPattern(BaseDbModel):
 
 
 class Work(VehicleRelationMixin, BaseDbModel):
-    _vehicle_back_populates="works"
+    _vehicle_back_populates = "works"
 
     title: Mapped[str]
     interval_month: Mapped[int]
