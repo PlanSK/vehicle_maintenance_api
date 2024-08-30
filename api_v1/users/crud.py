@@ -1,7 +1,7 @@
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.common import get_password_hash
+from api_v1.auth.utils import password_hasher
 from core.models import User
 
 from .schemas import User as UserSchema
@@ -22,7 +22,7 @@ async def get_user(session: AsyncSession, user_id: int) -> User | None:
 async def create_user(session: AsyncSession, user_data: UserCreate) -> User:
     user_data_dict = user_data.model_dump()
     unhased_password = user_data_dict.pop("password")
-    user_data_dict["hashed_password"] = get_password_hash(unhased_password)
+    user_data_dict["hashed_password"] = password_hasher.hash(unhased_password)
     user = User(**user_data_dict)
     session.add(user)
     await session.commit()

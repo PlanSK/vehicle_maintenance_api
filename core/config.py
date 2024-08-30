@@ -19,10 +19,17 @@ class SQLiteDBSettings(BaseModel):
     echo: bool = bool(int(os.getenv("DB_ECHO", 0)))
 
 
+class AuthJWT(BaseModel):
+    private_key_path: Path = BASE_DIR / ".secrets" / "private.pem"
+    public_key_path: Path = BASE_DIR / ".secrets" / "public.pem"
+    algorithm: str = "RS256"
+    access_token_expire_minutes: int = 15
+
+
 class Settings(BaseSettings):
     api_v1_prefix: str = "/api/v1"
     db: SQLiteDBSettings = SQLiteDBSettings()
-    secret_key: str | None = os.getenv("SECRET_KEY")
+    auth: AuthJWT = AuthJWT()
 
 
 settings = Settings()
