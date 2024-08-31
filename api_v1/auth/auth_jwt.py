@@ -59,9 +59,9 @@ def get_active_user_from_payload(
     payload: dict = Depends(get_current_payload_from_token),
 ) -> UserSchema:
     username: str | None = payload.get("username")
-    if not (user := users_db.get(username)):
-        raise http_unauth_exception
-    return user
+    if username and (user := users_db.get(username)):
+        return user
+    raise http_unauth_exception
 
 
 def get_current_active_user(
