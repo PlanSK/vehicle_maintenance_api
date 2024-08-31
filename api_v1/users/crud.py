@@ -1,7 +1,7 @@
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.auth.utils import password_hasher
+from auth.password_operators import password_hasher
 from core.models import User
 
 from .schemas import User as UserSchema

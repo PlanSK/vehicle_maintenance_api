@@ -3,8 +3,10 @@ from fastapi.security import OAuth2PasswordBearer
 from jwt import InvalidTokenError
 from pydantic import BaseModel
 
-from .schemas import UserSchema
-from .utils import decode_jwt, encode_jwt, password_hasher, password_validation
+from auth.password_operators import password_validation
+
+from .schemas import UserSchema, users_db
+from auth.utils import decode_jwt, encode_jwt
 
 
 class TokenInfo(BaseModel):
@@ -22,15 +24,6 @@ http_unauth_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,
     detail="Incorrect auth data.",
 )
-
-# Test login data
-plan = UserSchema(
-    username="plan",
-    password=password_hasher.hash("qwerty"),
-    email="plan@example.com",
-)
-sam = UserSchema(username="sam", password=password_hasher.hash("password"))
-users_db: dict[str, UserSchema] = {plan.username: plan, sam.username: sam}
 
 
 def auth_user_validate(username: str = Form(), password: str = Form()):

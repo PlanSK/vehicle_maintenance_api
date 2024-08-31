@@ -1,35 +1,15 @@
 import datetime
+
 import jwt
-from argon2 import PasswordHasher
-from argon2.exceptions import VerificationError, VerifyMismatchError
-from loguru import logger
 
 from core.config import settings
-
-password_hasher = PasswordHasher()
-
-
-def get_password_hash(unhashed_password: str) -> str:
-    return password_hasher.hash(unhashed_password)
-
-
-def password_validation(password: str, hash: str) -> bool:
-    try:
-        password_hasher.verify(hash=hash, password=password)
-    except VerifyMismatchError:
-        return False
-    except VerificationError as exception_trace:
-        logger.error(
-            f"Verification fails for other reasons. {exception_trace}"
-        )
-    return True
 
 
 def encode_jwt(
     payload: dict,
     key: str = settings.auth.private_key_path.read_text(),
     algorithm: str = settings.auth.algorithm,
-    expire_minutes: int = settings.auth.access_token_expire_minutes
+    expire_minutes: int = settings.auth.access_token_expire_minutes,
 ) -> str:
     to_encode = payload.copy()
     now_time = datetime.datetime.now(datetime.UTC)
