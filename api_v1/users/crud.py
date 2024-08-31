@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from auth.password_operators import password_hasher
 from core.models import User
 
-from .schemas import User as UserSchema
-from .schemas import UserCreate, UserUpdate, UserUpdatePart
+from core.schemas.users import User as UserSchema
+from core.schemas.users import UserCreate, UserUpdate, UserUpdatePart
 
 
 async def get_users(session: AsyncSession) -> list[User]:
