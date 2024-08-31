@@ -1,11 +1,13 @@
+from unittest import result
+
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.common import get_password_hash
+from auth.password_operators import password_hasher
 from core.models import User
 
-from .schemas import User as UserSchema
-from .schemas import UserCreate, UserUpdate, UserUpdatePart
+from core.schemas.users import User as UserSchema
+from core.schemas.users import UserCreate, UserUpdate, UserUpdatePart
 
 
 async def get_users(session: AsyncSession) -> list[User]:
@@ -22,7 +24,7 @@ async def get_user(session: AsyncSession, user_id: int) -> User | None:
 async def create_user(session: AsyncSession, user_data: UserCreate) -> User:
     user_data_dict = user_data.model_dump()
     unhased_password = user_data_dict.pop("password")
-    user_data_dict["hashed_password"] = get_password_hash(unhased_password)
+    user_data_dict.update(password=password_hasher.hash(unhased_password))
     user = User(**user_data_dict)
     session.add(user)
     await session.commit()
@@ -45,3 +47,11 @@ async def update_user(
 async def delete_user(session: AsyncSession, user: UserSchema) -> None:
     await session.delete(user)
     await session.commit()
+
+
+async def get_user_by_username(
+    session: AsyncSession, username: str
+) -> User | None:
+    statement = select(User).where(User.username == username)
+    result: Result = await session.execute(statement)
+    return result.scalar_one_or_none()

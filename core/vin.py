@@ -7,7 +7,7 @@ ALLOWED_VIN_LETTERS: str = "ABCDEFGHJKLMNPRSTUVWXYZ"
 
 
 def translitering_vin_character_to_number(vin_char: str) -> int:
-    vin_translate_chars_tuple: tuple[tuple] = (
+    vin_translate_chars_tuple: tuple = (
         ("AJ", 1),
         ("BKS", 2),
         ("CLT", 3),
