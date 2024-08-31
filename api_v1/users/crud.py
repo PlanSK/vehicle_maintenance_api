@@ -1,3 +1,5 @@
+from unittest import result
+
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -45,3 +47,11 @@ async def update_user(
 async def delete_user(session: AsyncSession, user: UserSchema) -> None:
     await session.delete(user)
     await session.commit()
+
+
+async def get_user_by_username(
+    session: AsyncSession, username: str
+) -> User | None:
+    statement = select(User).where(User.username == username)
+    result: Result = await session.execute(statement)
+    return result.scalar_one_or_none()
