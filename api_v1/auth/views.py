@@ -4,18 +4,19 @@ from jwt import InvalidTokenError
 from loguru import logger
 from pydantic import BaseModel
 
+from api_v1.users.crud import get_user_by_username
+from api_v1.users.schemas import User as UserSchema
 from auth.password_operators import password_validation
 from auth.utils import decode_jwt, encode_jwt
 from core.config import settings
-
-from .schemas import UserSchema, users_db
+from core.database import db_interface
 
 LOGIN_ROUTER_PREFIX = "/login/"
 
 
 class TokenInfo(BaseModel):
     access_token: str
-    token_type: str
+    token_type: str = "Bearer"
 
 
 router = APIRouter(prefix="/jwt", tags=["JWT Auth"])
@@ -33,8 +34,16 @@ http_unauth_exception: HTTPException = HTTPException(
 )
 
 
-def auth_user_validate(username: str = Form(), password: str = Form()):
-    if not (user := users_db.get(username)):
+async def get_user_from_db_by_username(username: str):
+    async with db_interface.session_factory() as session:
+        user = await get_user_by_username(session=session, username=username)
+    if not user:
+        return None
+    return UserSchema.model_validate(user)
+
+
+async def auth_user_validate(username: str = Form(), password: str = Form()):
+    if not (user := await get_user_from_db_by_username(username)):
         logger.error(f"User {username!r} not found in db.")
         raise http_unauth_exception
 
@@ -48,9 +57,9 @@ def auth_user_validate(username: str = Form(), password: str = Form()):
     return user
 
 
-def get_current_payload_from_token(
+async def get_payload_from_token(
     token: str = Depends(oauth_token),
-) -> UserSchema:
+) -> dict:
     try:
         payload = decode_jwt(token=token)
     except InvalidTokenError:
@@ -59,17 +68,17 @@ def get_current_payload_from_token(
     return payload
 
 
-def get_active_user_from_payload(
-    payload: dict = Depends(get_current_payload_from_token),
+async def get_active_user_from_payload(
+    payload: dict = Depends(get_payload_from_token),
 ) -> UserSchema:
-    username: str | None = payload.get("username")
-    if username and (user := users_db.get(username)):
-        return user
+    if username := payload.get("username"):
+        if user := await get_user_from_db_by_username(username):
+            return user
     logger.error(f"User {username!r} not found in db.")
     raise http_unauth_exception
 
 
-def get_current_active_user(
+async def get_current_active_user(
     user: UserSchema = Depends(get_active_user_from_payload),
 ):
     if user.is_active:
@@ -79,19 +88,19 @@ def get_current_active_user(
 
 
 @router.post(LOGIN_ROUTER_PREFIX)
-def auth_user_jwt(user: UserSchema = Depends(auth_user_validate)):
+async def auth_user_jwt(user: UserSchema = Depends(auth_user_validate)):
     jwt_payload = {
         "sub": user.username,
         "username": user.username,
         "email": user.email,
     }
     token = encode_jwt(jwt_payload)
-    return TokenInfo(access_token=token, token_type="Bearer")
+    return TokenInfo(access_token=token)
 
 
 @router.get("/users/me/")
-def auth_user_get_self_info(
-    payload: dict = Depends(get_current_payload_from_token),
+async def auth_user_get_self_info(
+    payload: dict = Depends(get_payload_from_token),
     user: UserSchema = Depends(get_current_active_user),
 ):
     return {
