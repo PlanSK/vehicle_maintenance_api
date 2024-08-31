@@ -10,10 +10,10 @@ if TYPE_CHECKING:
 
 
 class User(BaseDbModel):
-    login: Mapped[str] = mapped_column(String(20), unique=True, index=True)
+    username: Mapped[str] = mapped_column(String(20), unique=True, index=True)
     first_name: Mapped[str]
     last_name: Mapped[Optional[str]]
-    user_email: Mapped[str] = mapped_column(unique=True)
-    hashed_password: Mapped[str]
+    email: Mapped[str] = mapped_column(unique=True)
+    password: Mapped[str]
     is_active: Mapped[bool] = mapped_column(default=True)
     vehicles: Mapped[list["Vehicle"]] = relationship(back_populates="owner")
