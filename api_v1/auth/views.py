@@ -1,4 +1,7 @@
+from urllib import response
+
 from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
 
 from core.schemas.users import User
 
@@ -18,7 +21,13 @@ router = APIRouter(prefix=ROUTER_PREFIX, tags=["JWT Auth"])
 async def auth_user_jwt(user: User = Depends(auth_user_validate)):
     access_token = await create_access_token(user)
     refresh_token = await create_refresh_token(user)
-    return TokenInfo(access_token=access_token, refresh_token=refresh_token)
+    response = JSONResponse(
+        content=TokenInfo(
+            access_token=access_token, refresh_token=refresh_token
+        ).model_dump()
+    )
+    response.set_cookie(key="refresh-token", value=refresh_token)
+    return response
 
 
 @router.post(
