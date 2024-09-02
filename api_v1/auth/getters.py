@@ -13,6 +13,7 @@ from .exceptions import http_unauth_exception
 from .token import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE, token_type_validation
 
 LOGIN_ROUTER_PREFIX = "/login/"
+REFRESH_ROUTER_PREFIX = "/refresh/"
 ROUTER_PREFIX = "/auth"
 
 
@@ -56,10 +57,14 @@ async def get_active_user_from_payload(
     raise http_unauth_exception
 
 
-async def get_user_auth_for_user_refresh(
+async def get_active_user_from_payload_for_refresh(
     payload: dict = Depends(get_payload_from_token),
-):
+) -> User:
     if await token_type_validation(
         payload=payload, needed_token_type=REFRESH_TOKEN_TYPE
     ):
-        return await get_active_user_from_payload(payload=payload)
+        if username := payload.get("username"):
+            if user := await get_user_from_db_by_username(username):
+                return user
+    logger.error(f"User {username!r} not found in db or token type incorrect.")
+    raise http_unauth_exception
