@@ -1,24 +1,52 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Cookie, Depends
+from fastapi.responses import JSONResponse
+from loguru import logger
 
-from auth.utils import encode_jwt
 from core.schemas.users import User
 
-from .getters import LOGIN_ROUTER_PREFIX, ROUTER_PREFIX, get_payload_from_token
-from .token import TokenInfo
+from .exceptions import http_unauth_exception
+from .getters import (
+    LOGIN_ROUTER_PREFIX,
+    ROUTER_PREFIX,
+    get_active_user_from_payload_for_refresh,
+    get_payload_from_token,
+)
+from .token import TokenInfo, create_access_token, create_refresh_token
 from .validate import auth_user_validate, get_current_active_user
 
-router = APIRouter(prefix=ROUTER_PREFIX, tags=["JWT Auth"])
+
+router = APIRouter(
+    prefix=ROUTER_PREFIX,
+    tags=["JWT Auth"],
+)
 
 
 @router.post(LOGIN_ROUTER_PREFIX)
 async def auth_user_jwt(user: User = Depends(auth_user_validate)):
-    jwt_payload = {
-        "sub": user.username,
-        "username": user.username,
-        "email": user.email,
-    }
-    token = encode_jwt(jwt_payload)
-    return TokenInfo(access_token=token)
+    access_token = await create_access_token(user)
+    refresh_token = await create_refresh_token(user)
+    response = JSONResponse(
+        content=TokenInfo(
+            access_token=access_token, refresh_token=refresh_token
+        ).model_dump()
+    )
+    response.set_cookie(key="refresh_token", value=refresh_token)
+    return response
+
+
+@router.get(
+    "/refresh/", response_model=TokenInfo, response_model_exclude_none=True
+)
+async def auth_user_refresh_access_token(
+    refresh_token: str | None = Cookie(default=None),
+):
+    if refresh_token:
+        payload: dict = await get_payload_from_token(token=refresh_token)
+        user: User = await get_active_user_from_payload_for_refresh(payload)
+        if user.is_active:
+            access_token = await create_access_token(user)
+            return TokenInfo(access_token=access_token)
+    raise http_unauth_exception
 
 
 @router.get("/users/me/")
