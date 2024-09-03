@@ -1,14 +1,14 @@
 import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from .base import BaseDbModel, DB_PREFIX
+from .base import DB_PREFIX, BaseDbModel
 
 if TYPE_CHECKING:
+    from .events import Event, MileageEvent
     from .user import User
-    from .events import Event
     from .works import Work
 
 
@@ -24,5 +24,8 @@ class Vehicle(BaseDbModel):
     vehicle_year: Mapped[int]
     vehicle_mileage: Mapped[int]
     vehicle_last_update_date: Mapped[datetime.date]
-    events: Mapped[list["Event"]] = relationship()
-    works: Mapped[list["Work"]] = relationship()
+    events: Mapped[list["Event"]] = relationship(back_populates="vehicle")
+    works: Mapped[list["Work"]] = relationship(back_populates="vehicle")
+    mileage_events: Mapped[list["MileageEvent"]] = relationship(
+        back_populates="vehicle"
+    )

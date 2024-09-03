@@ -1,11 +1,11 @@
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class UserBase(BaseModel):
-    login: str
+    username: str
     first_name: str
-    last_name: str
-    user_email: EmailStr
+    last_name: str | None
+    email: EmailStr
 
 
 class UserCreate(UserBase):
@@ -17,15 +17,15 @@ class UserUpdate(UserCreate):
 
 
 class UserUpdatePart(BaseModel):
-    login: str | None = None
+    username: str | None = None
     first_name: str | None = None
     last_name: str | None = None
-    user_email: EmailStr | None = None
-    hashed_password: str | None = None
+    email: EmailStr | None = None
 
 
 class User(UserBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    hashed_password: str
+    password: str
+    is_active: bool = True

@@ -1,11 +1,12 @@
 from asyncio import current_task
+from typing import AsyncGenerator
+
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
-    create_async_engine,
-    async_sessionmaker,
     async_scoped_session,
+    async_sessionmaker,
+    create_async_engine,
 )
-from typing import AsyncGenerator
 
 from .config import settings
 
@@ -39,4 +40,4 @@ class DatabaseInterface:
         await session.close()
 
 
-db_interface = DatabaseInterface(url=settings.db_url, echo=settings.db_echo)
+db_interface = DatabaseInterface(url=settings.db.url, echo=settings.db.echo)
