@@ -21,7 +21,7 @@ class DatabaseInterface:
             expire_on_commit=False,
         )
 
-    def get_scoped_session(self):
+    async def get_scoped_session(self):
         session = async_scoped_session(
             session_factory=self.session_factory, scopefunc=current_task
         )
@@ -35,7 +35,7 @@ class DatabaseInterface:
     async def scoped_session_dependency(
         self,
     ) -> AsyncGenerator[AsyncSession, None]:
-        session = self.get_scoped_session()
+        session = await self.get_scoped_session()
         yield session
         await session.close()
 
