@@ -19,6 +19,14 @@ class VehicleBase(BaseModel):
 class VehicleCreate(VehicleBase):
     pass
 
+class VehicleUpdate(BaseModel):
+    vin_code: VIN_Type | None = None
+    vehicle_manufacturer: str | None = None
+    vehicle_model: str | None = None
+    vehicle_body: str | None = None
+    vehicle_year: int | None = None
+    vehicle_mileage: int | None = None
+
 
 class Vehicle(VehicleBase):
     model_config = ConfigDict(from_attributes=True)

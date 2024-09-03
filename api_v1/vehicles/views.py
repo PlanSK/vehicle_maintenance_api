@@ -2,7 +2,8 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import db_interface
-from core.schemas.vehicles import Vehicle, VehicleCreate
+from core.models import vehicle
+from core.schemas.vehicles import Vehicle, VehicleCreate, VehicleUpdate
 
 from . import crud
 from .utils import get_vehicle_by_id_or_exceprion
@@ -44,7 +45,17 @@ async def get_users_vehicles(
 ):
     return await crud.get_users_vehicles(user_id=user_id, session=session)
 
-# Update vehicle
+
+@router.patch("/{vehicle_id}/")
+async def update_vehicle_partial(
+    vehicle_update: VehicleUpdate,
+    vehicle: Vehicle = Depends(get_vehicle_by_id_or_exceprion),
+    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+):
+    return await crud.update_vehicle(
+        session=session, vehicle=vehicle, vehicle_update=vehicle_update
+    )
+
 
 @router.delete("/{vehicle_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(

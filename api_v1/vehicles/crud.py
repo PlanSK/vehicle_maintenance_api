@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models.vehicle import Vehicle
 from core.schemas.vehicles import Vehicle as VehicleSchema
-from core.schemas.vehicles import VehicleCreate
+from core.schemas.vehicles import VehicleCreate, VehicleUpdate
 
 
 async def create_vehicle(
@@ -38,6 +38,17 @@ async def get_vehicle_by_id(
     vehicle_id: int, session: AsyncSession
 ) -> Vehicle | None:
     return await session.get(Vehicle, vehicle_id)
+
+
+async def update_vehicle(
+    session: AsyncSession,
+    vehicle: VehicleSchema,
+    vehicle_update: VehicleUpdate,
+) -> VehicleSchema:
+    for name, value in vehicle_update.model_dump(exclude_unset=True).items():
+        setattr(vehicle, name, value)
+    await session.commit()
+    return vehicle
 
 
 async def delete_vehicle(
