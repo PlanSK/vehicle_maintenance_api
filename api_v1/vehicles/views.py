@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api_v1.auth.validate import get_current_active_user
 from core.database import db_interface
-from core.models import vehicle
 from core.schemas.vehicles import Vehicle, VehicleCreate, VehicleUpdate
+from core.schemas.users import User
 
 from . import crud
 from .utils import get_vehicle_by_id_or_exceprion
@@ -14,10 +15,11 @@ router = APIRouter(prefix="/vehicle", tags=["Vehicles"])
 @router.post("/", response_model=Vehicle, status_code=status.HTTP_201_CREATED)
 async def create_vehicle(
     vehicle_data: VehicleCreate,
+    user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
     return await crud.create_vehicle(
-        session=session, vehicle_data=vehicle_data
+        session=session, vehicle_data=vehicle_data, owner_id=user.id
     )
 
 

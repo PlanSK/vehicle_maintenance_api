@@ -6,7 +6,6 @@ from core.vin import VIN_Type
 
 
 class VehicleBase(BaseModel):
-    owner_id: int
     vin_code: VIN_Type
     vehicle_manufacturer: str
     vehicle_model: str
@@ -31,3 +30,4 @@ class VehicleUpdate(BaseModel):
 class Vehicle(VehicleBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
+    owner_id: int

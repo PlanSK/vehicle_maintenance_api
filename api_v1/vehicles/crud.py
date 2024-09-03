@@ -7,9 +7,11 @@ from core.schemas.vehicles import VehicleCreate, VehicleUpdate
 
 
 async def create_vehicle(
-    session: AsyncSession, vehicle_data: VehicleCreate
+    session: AsyncSession, vehicle_data: VehicleCreate, owner_id: int
 ) -> Vehicle:
-    vehicle = Vehicle(**vehicle_data.model_dump())
+    vehicle_data_dump = vehicle_data.model_dump()
+    vehicle_data_dump.update(owner_id=owner_id)
+    vehicle = Vehicle(**vehicle_data_dump)
     session.add(vehicle)
     await session.commit()
     await session.refresh(vehicle)
