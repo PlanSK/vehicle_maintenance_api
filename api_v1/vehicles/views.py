@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.auth.validate import get_current_active_user
 from core.database import db_interface
-from core.schemas.vehicles import Vehicle, VehicleCreate, VehicleUpdate
 from core.schemas.users import User
+from core.schemas.vehicles import Vehicle, VehicleCreate, VehicleUpdate
 
 from . import crud
 from .utils import get_vehicle_by_id_or_exceprion
@@ -30,7 +30,7 @@ async def get_all_vehicles(
     return await crud.get_all_vehicles(session=session)
 
 
-@router.get("/{vehicle_id}/", response_model=Vehicle)
+@router.get("/{vehicle_id}/")
 async def get_vehicle_by_id(
     vehicle_id: int,
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
