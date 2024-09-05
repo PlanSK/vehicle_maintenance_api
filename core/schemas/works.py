@@ -29,6 +29,14 @@ class WorkBase(BaseModel):
     vehicle_id: int
 
 
+class WorkUpdate(BaseModel):
+    title: str | None = None
+    interval_month: int | None = None
+    interval_km: int | None = None
+    work_type: WorkType | None = None
+    note: str | None = None
+
+
 class Work(WorkBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
