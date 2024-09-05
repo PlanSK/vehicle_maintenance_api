@@ -1,5 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 
+from core.models.works import WorkType
+
 
 class WorkPatternBase(BaseModel):
     title: str
@@ -14,5 +16,19 @@ class WorkPatternUpdate(BaseModel):
 
 
 class WorkPattern(WorkPatternBase):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+
+
+class WorkBase(BaseModel):
+    title: str
+    interval_month: int
+    interval_km: int
+    work_type: WorkType
+    note: str
+    vehicle_id: int
+
+
+class Work(WorkBase):
     model_config = ConfigDict(from_attributes=True)
     id: int

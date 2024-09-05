@@ -1,7 +1,8 @@
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.models.works import WorkPattern
+from core.models.works import Work, WorkPattern
+from core.schemas.works import WorkBase
 from core.schemas.works import WorkPattern as WorkPatternSchema
 from core.schemas.works import WorkPatternBase, WorkPatternUpdate
 
@@ -47,3 +48,11 @@ async def delete_workpattern(
 ) -> None:
     await session.delete(workpattern)
     await session.commit()
+
+
+async def create_work(session: AsyncSession, work_data: WorkBase) -> Work:
+    work = Work(**work_data.model_dump())
+    session.add(work)
+    await session.commit()
+    await session.refresh(work)
+    return work

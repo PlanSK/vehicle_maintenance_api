@@ -1,8 +1,8 @@
 """Create tables from models.
 
-Revision ID: c2b8758c5141
+Revision ID: 08827839eac4
 Revises: 
-Create Date: 2024-08-31 15:45:12.030800
+Create Date: 2024-09-05 11:17:14.368794
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "c2b8758c5141"
+revision: str = "08827839eac4"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -75,7 +75,11 @@ def upgrade() -> None:
         sa.Column("title", sa.String(), nullable=False),
         sa.Column("interval_month", sa.Integer(), nullable=False),
         sa.Column("interval_km", sa.Integer(), nullable=False),
-        sa.Column("work_type", sa.Integer(), nullable=False),
+        sa.Column(
+            "work_type",
+            sa.Enum("MAINTENANCE", "REPAIR", "TUNING", name="worktype"),
+            nullable=False,
+        ),
         sa.Column("note", sa.String(), nullable=False),
         sa.Column("vehicle_id", sa.Integer(), nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),

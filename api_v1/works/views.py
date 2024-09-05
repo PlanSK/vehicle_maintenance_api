@@ -2,7 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import db_interface
-from core.schemas.works import WorkPattern, WorkPatternBase, WorkPatternUpdate
+from core.schemas.works import (
+    Work,
+    WorkBase,
+    WorkPattern,
+    WorkPatternBase,
+    WorkPatternUpdate,
+)
 
 from . import crud
 
@@ -81,3 +87,12 @@ async def delete_workpattern(
     return await crud.delete_workpattern(
         session=session, workpattern=workpattern
     )
+
+
+@router.post("/", response_model=Work, status_code=status.HTTP_201_CREATED)
+async def create_work(
+    work_data: WorkBase,
+    # user: User = Depends(get_current_active_user),
+    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+):
+    return await crud.create_work(session=session, work_data=work_data)
