@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.auth.validate import get_current_active_user
 from core.database import db_interface
 from core.schemas.users import User
 from core.schemas.vehicles import Vehicle, VehicleCreate, VehicleUpdate
+from core.vin import vin_code_validator
 
 from . import crud
 from .utils import get_vehicle_by_id_or_exceprion
@@ -65,3 +66,18 @@ async def delete_user(
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ) -> None:
     return await crud.delete_vehicle(session=session, vehicle=vehicle)
+
+
+@router.get("/by_vin/{vehicle_vin}/", response_model=Vehicle)
+async def get_vehicle_by_vin(
+    vehicle_vin: str,
+    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+):
+    try:
+        vin_code_validator(vin_code=vehicle_vin)
+    except AssertionError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="VIN Code format is incorrect or checksum is not valid.",
+        )
+    return await crud.get_vehicle_by_vin(session=session, vin=vehicle_vin)

@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from core.models.vehicle import Vehicle
 from core.schemas.vehicles import Vehicle as VehicleSchema
 from core.schemas.vehicles import VehicleCreate, VehicleUpdate
+from core.vin import VIN_Type
 
 
 async def create_vehicle(
@@ -58,3 +59,8 @@ async def delete_vehicle(
 ) -> None:
     await session.delete(vehicle)
     await session.commit()
+
+
+async def get_vehicle_by_vin(session: AsyncSession, vin: VIN_Type):
+    statement = select(Vehicle).where(Vehicle.vin_code == vin)
+    return await session.scalar(statement)
