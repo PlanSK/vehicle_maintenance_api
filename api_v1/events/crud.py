@@ -1,6 +1,7 @@
 from sqlalchemy import Result, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api_v1.vehicles.crud import update_vehicle_mileage_from_event
 from core.models.events import Event, MileageEvent
 from core.schemas.events import Event as EventSchema
 from core.schemas.events import EventCreate, EventUpdate
@@ -44,6 +45,11 @@ async def create_event(
 ) -> Event:
     event = Event(**event_data.model_dump())
     await _add_element_to_db(element=event, session=session)
+    await update_vehicle_mileage_from_event(
+        session=session,
+        vehicle_id=event.vehicle_id,
+        event_mileage=event.mileage,
+    )
     return event
 
 
@@ -64,6 +70,11 @@ async def create_mileage_event(
 ) -> MileageEvent:
     mileage_event = MileageEvent(**mileage_event_data.model_dump())
     await _add_element_to_db(element=mileage_event, session=session)
+    await update_vehicle_mileage_from_event(
+        session=session,
+        vehicle_id=mileage_event.vehicle_id,
+        event_mileage=mileage_event.mileage,
+    )
     return mileage_event
 
 
