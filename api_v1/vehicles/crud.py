@@ -12,6 +12,8 @@ async def create_vehicle(
 ) -> Vehicle:
     vehicle_data_dump = vehicle_data.model_dump()
     vehicle_data_dump.update(owner_id=owner_id)
+    vin_code: str = vehicle_data_dump.get('vin_code', "")
+    vehicle_data_dump.update(vin_code=vin_code.upper())
     vehicle = Vehicle(**vehicle_data_dump)
     session.add(vehicle)
     await session.commit()
