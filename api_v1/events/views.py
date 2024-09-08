@@ -127,7 +127,10 @@ async def delete_event(
     return await crud.delete_event(session=session, event=event)
 
 
-@router.delete(MILEAGE_PREFIX + "/{mileage_event_id}/", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete(
+    MILEAGE_PREFIX + "/{mileage_event_id}/",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
 async def delete_mileage_event(
     mileage_event: MileageEvent = Depends(
         get_mileage_event_by_id_or_exception
@@ -136,4 +139,15 @@ async def delete_mileage_event(
 ) -> None:
     return await crud.delete_mileage_event(
         session=session, event=mileage_event
+    )
+
+
+@router.get("/by_work_id/{vehicle_id}/{work_id}/")
+async def get_events_by_work_id(
+    vehicle_id: int,
+    work_id: int,
+    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+):
+    return await crud.get_events_for_vehicle_by_type(
+        session=session, vehicle_id=vehicle_id, work_id=work_id
     )

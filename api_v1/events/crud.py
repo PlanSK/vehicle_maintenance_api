@@ -111,3 +111,13 @@ async def delete_mileage_event(
 ) -> None:
     await session.delete(event)
     await session.commit()
+
+
+async def get_events_for_vehicle_by_type(
+    session: AsyncSession, vehicle_id: int, work_id: int
+):
+    statement = select(Event).where(
+        (Event.vehicle_id == vehicle_id) & (Event.work_id == work_id)
+    )
+    result = await session.scalars(statement)
+    return list(result)
