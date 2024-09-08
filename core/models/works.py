@@ -1,7 +1,15 @@
-from sqlalchemy.orm import Mapped
+from enum import Enum
+
+from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import BaseDbModel
 from .mixins import VehicleRelationMixin
+
+
+class WorkType(Enum):
+    MAINTENANCE = "Maintenance"
+    REPAIR = "Repair"
+    TUNING = "Tuning"
 
 
 class WorkPattern(BaseDbModel):
@@ -16,5 +24,5 @@ class Work(VehicleRelationMixin, BaseDbModel):
     title: Mapped[str]
     interval_month: Mapped[int]
     interval_km: Mapped[int]
-    work_type: Mapped[int]
+    work_type: Mapped[WorkType] = mapped_column(default=WorkType.MAINTENANCE)
     note: Mapped[str]

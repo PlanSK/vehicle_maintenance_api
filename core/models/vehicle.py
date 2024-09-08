@@ -23,7 +23,9 @@ class Vehicle(BaseDbModel):
     vehicle_body: Mapped[str]
     vehicle_year: Mapped[int]
     vehicle_mileage: Mapped[int]
-    vehicle_last_update_date: Mapped[datetime.date]
+    vehicle_last_update_date: Mapped[datetime.date] = mapped_column(
+        onupdate=datetime.date.today
+    )
     events: Mapped[list["Event"]] = relationship(back_populates="vehicle")
     works: Mapped[list["Work"]] = relationship(back_populates="vehicle")
     mileage_events: Mapped[list["MileageEvent"]] = relationship(

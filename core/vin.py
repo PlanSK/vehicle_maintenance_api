@@ -47,7 +47,7 @@ def vin_checksum_calc(vin_code: str) -> str:
 def vin_format_checking(vin_code: str) -> bool:
     assert len(vin_code) == 17, f"VIN length must be 17 characters."
     assert all(
-        vin_char.isdigit() or vin_char in ALLOWED_VIN_LETTERS
+        vin_char.isdigit() or vin_char.upper() in ALLOWED_VIN_LETTERS
         for vin_char in vin_code
     ), f"VIN code contains incorrect characters."
     return True
