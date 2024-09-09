@@ -1,4 +1,4 @@
-from sqlalchemy import Result, desc, select
+from sqlalchemy import Result, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.vehicles.crud import update_vehicle_mileage_from_event
@@ -63,6 +63,17 @@ async def get_vehicle_events(
         order_by_argument="work_date",
     )
     return events_list
+
+
+async def get_vehicle_events_by_work_id(
+    vehicle_id: int, work_id: int, session: AsyncSession
+):
+    statement = (
+        select(Event)
+        .where((Event.vehicle_id == vehicle_id) & (Event.work_id == work_id))
+        .order_by(Event.mileage)
+    )
+    return list(await session.scalars(statement=statement))
 
 
 async def create_mileage_event(

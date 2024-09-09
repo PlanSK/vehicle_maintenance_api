@@ -11,7 +11,7 @@ from core.schemas.events import (
     MileageEventUpdate,
 )
 
-from . import crud
+from . import crud, utils
 
 router = APIRouter(prefix="/events", tags=["Events"])
 MILEAGE_PREFIX = "/mileage"
@@ -151,3 +151,15 @@ async def get_events_by_work_id(
     return await crud.get_events_for_vehicle_by_type(
         session=session, vehicle_id=vehicle_id, work_id=work_id
     )
+
+
+@router.get("/average_interval/{vehicle_id}/{work_id}/")
+async def get_average_interval_km_for_event(
+    vehicle_id: int,
+    work_id: int,
+    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+):
+    events_list = await crud.get_events_for_vehicle_by_type(
+        session=session, vehicle_id=vehicle_id, work_id=work_id
+    )
+    return await utils.get_average_mileage_interval(events_list=events_list)
