@@ -1,5 +1,4 @@
 from contextlib import asynccontextmanager
-from typing import Union
 
 import uvicorn
 from fastapi import FastAPI
@@ -11,10 +10,12 @@ from fastapi.staticfiles import StaticFiles
 
 from api_v1 import router as router_v1
 from core.config import settings
+from core.utils import add_workpatterns_models_to_db
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await add_workpatterns_models_to_db()
     yield
 
 

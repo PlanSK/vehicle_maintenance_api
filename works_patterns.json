@@ -1,0 +1,67 @@
+[
+  {
+    "title": "Замена моторного масла и маслянного фильтра",
+    "interval_month": 12,
+    "interval_km": 5000
+  },
+  {
+    "title": "Замена воздушного фильтра",
+    "interval_month": 12,
+    "interval_km": 15000
+  },
+  {
+    "title": "Замена салонного фильтра",
+    "interval_month": 12,
+    "interval_km": 5000
+  },
+  {
+    "title": "Регулировка клапанов",
+    "interval_month": 36,
+    "interval_km": 45000
+  },
+  {
+    "title": "Замена топливного фильтра",
+    "interval_month": 72,
+    "interval_km": 90000
+  },
+  {
+    "title": "Замена свечей зажигания (иридиевые)",
+    "interval_month": 96,
+    "interval_km": 120000
+  },
+  {
+    "title": "Замена антифриза",
+    "interval_month": 60,
+    "interval_km": 100000
+  },
+  {
+    "title": "Замена жидкости в трансмиссии (АТ)",
+    "interval_month": 36,
+    "interval_km": 45000
+  },
+  {
+    "title": "Замена тормозной жидкости",
+    "interval_month": 36,
+    "interval_km": 45000
+  },
+  {
+    "title": "Замена жидкости ГУР",
+    "interval_month": 36,
+    "interval_km": 45000
+  },
+  {
+    "title": "Проверка, регулировка углов установки колес",
+    "interval_month": 12,
+    "interval_km": 15000
+  },
+  {
+    "title": "Чистка, смазка направляющих тормозных суппортов",
+    "interval_month": 24,
+    "interval_km": 30000
+  },
+  {
+    "title": "Промывка топливных форсунок системы впрыска",
+    "interval_month": 24,
+    "interval_km": 30000
+  }
+]
