@@ -1,6 +1,7 @@
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from api_v1.works.crud import create_works_on_create_vehicle
 from core.models.vehicle import Vehicle
 from core.schemas.vehicles import Vehicle as VehicleSchema
 from core.schemas.vehicles import VehicleCreate, VehicleUpdate
@@ -10,15 +11,18 @@ from core.vin import VIN_Type
 async def create_vehicle(
     session: AsyncSession, vehicle_data: VehicleCreate, owner_id: int
 ) -> Vehicle:
-    vehicle_data_dump = vehicle_data.model_dump()
-    vehicle_data_dump.update(owner_id=owner_id)
-    vin_code: str = vehicle_data_dump.get('vin_code', "")
-    vehicle_data_dump.update(vin_code=vin_code.upper())
-    vehicle = Vehicle(**vehicle_data_dump)
-    session.add(vehicle)
+    vehicle_data_dump: dict = vehicle_data.model_dump()
+    vin_code: str = vehicle_data_dump.get("vin_code", "")
+    vehicle_data_dump.update(owner_id=owner_id, vin_code=vin_code.upper())
+    vehicle_instance = Vehicle(**vehicle_data_dump)
+
+    session.add(vehicle_instance)
     await session.commit()
-    await session.refresh(vehicle)
-    return vehicle
+    await session.refresh(vehicle_instance)
+    await create_works_on_create_vehicle(
+        vehicle_id=vehicle_instance.id, session=session
+    )
+    return vehicle_instance
 
 
 async def get_all_vehicles(session: AsyncSession) -> list[Vehicle]:

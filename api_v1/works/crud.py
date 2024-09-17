@@ -1,4 +1,4 @@
-from sqlalchemy import Result, select
+from sqlalchemy import Result, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models.works import Work, WorkPattern
@@ -23,6 +23,19 @@ async def get_all_workpatterns(session: AsyncSession) -> list[WorkPattern]:
     result: Result = await session.execute(statement)
     workpatterns_list: list = list(result.scalars().all())
     return workpatterns_list
+
+
+async def create_works_on_create_vehicle(
+    vehicle_id: int, session: AsyncSession
+) -> None:
+    workpatterns_list = await get_all_workpatterns(session=session)
+    wp_dicts_list = []
+    for workpattern in workpatterns_list:
+        wp_dict = WorkPatternSchema.model_validate(workpattern).model_dump()
+        wp_dict.update(vehicle_id=vehicle_id, note="")
+        wp_dicts_list.append(wp_dict)
+    await session.execute(insert(Work), wp_dicts_list)
+    await session.commit()
 
 
 async def get_workpattern_by_id(
