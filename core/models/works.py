@@ -25,4 +25,4 @@ class Work(VehicleRelationMixin, BaseDbModel):
     interval_month: Mapped[int]
     interval_km: Mapped[int]
     work_type: Mapped[WorkType] = mapped_column(default=WorkType.MAINTENANCE)
-    note: Mapped[str]
+    note: Mapped[str] = mapped_column(default="")

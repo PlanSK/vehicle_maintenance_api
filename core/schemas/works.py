@@ -25,7 +25,7 @@ class WorkBase(BaseModel):
     interval_month: int
     interval_km: int
     work_type: WorkType
-    note: str
+    note: str = ""
     vehicle_id: int
 
 
