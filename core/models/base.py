@@ -1,3 +1,5 @@
+import re
+
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
@@ -6,6 +8,7 @@ from sqlalchemy.orm import (
 )
 
 DB_PREFIX = "api_"
+camel_case_pattern = re.compile(r"(?<!^)(?=[A-Z])")
 
 
 class BaseDbModel(DeclarativeBase):
@@ -13,6 +16,8 @@ class BaseDbModel(DeclarativeBase):
 
     @declared_attr.directive
     def __tablename__(cls) -> str:
-        return f"{DB_PREFIX}{cls.__name__.lower()}s"
+        return (
+            f"{DB_PREFIX}{camel_case_pattern.sub('_', cls.__name__).lower()}s"
+        )
 
     id: Mapped[int] = mapped_column(primary_key=True)
