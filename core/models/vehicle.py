@@ -7,7 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import DB_PREFIX, BaseDbModel
 
 if TYPE_CHECKING:
-    from .events import Event, MileageEvent
+    from .event import Event
+    from .mileage_event import MileageEvent
     from .user import User
     from .works import Work
 
