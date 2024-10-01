@@ -36,16 +36,6 @@ async def create_event(
     return await crud.create_event(session=session, event_data=event_data)
 
 
-@router.get("/{vehicle_id}/")
-async def get_vehicle_events(
-    vehicle_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
-):
-    return await crud.get_vehicle_events(
-        vehicle_id=vehicle_id, session=session
-    )
-
-
 @router.patch("/{event_id}/")
 async def update_event(
     event_update: EventUpdate,
@@ -65,24 +55,20 @@ async def delete_event(
     return await crud.delete_event(session=session, event=event)
 
 
-@router.get("/by_work_id/{vehicle_id}/{work_id}/")
+@router.get("/by_work_id/{work_id}/")
 async def get_events_by_work_id(
-    vehicle_id: int,
     work_id: int,
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
-    return await crud.get_events_for_vehicle_by_type(
-        session=session, vehicle_id=vehicle_id, work_id=work_id
-    )
+    return await crud.get_events_by_work_id(session=session, work_id=work_id)
 
 
-@router.get("/average_interval/{vehicle_id}/{work_id}/")
+@router.get("/average_interval/{work_id}/")
 async def get_average_interval_km_for_event(
-    vehicle_id: int,
     work_id: int,
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
-    events_list = await crud.get_events_for_vehicle_by_type(
-        session=session, vehicle_id=vehicle_id, work_id=work_id
+    events_list = await crud.get_events_by_work_id(
+        session=session, work_id=work_id
     )
     return await utils.get_average_mileage_interval(events_list=events_list)

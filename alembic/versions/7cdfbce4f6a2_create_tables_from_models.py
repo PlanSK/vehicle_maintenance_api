@@ -1,8 +1,8 @@
 """Create tables from models.
 
-Revision ID: fac270d4383e
+Revision ID: 7cdfbce4f6a2
 Revises: 
-Create Date: 2024-10-01 16:14:12.190898
+Create Date: 2024-10-01 18:23:49.407736
 
 """
 
@@ -13,7 +13,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = "fac270d4383e"
+revision: str = "7cdfbce4f6a2"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -94,9 +94,7 @@ def upgrade() -> None:
         sa.Column("part_price", sa.Float(), nullable=False),
         sa.Column("work_price", sa.Float(), nullable=False),
         sa.Column("note", sa.String(), nullable=False),
-        sa.Column("vehicle_id", sa.Integer(), nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(["vehicle_id"], ["api_vehicles.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["work_id"], ["api_works.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )

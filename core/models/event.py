@@ -4,12 +4,9 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column
 
 from .base import DB_PREFIX, BaseDbModel
-from .mixins import VehicleRelationMixin
 
 
-class Event(VehicleRelationMixin, BaseDbModel):
-    _vehicle_back_populates = "events"
-
+class Event(BaseDbModel):
     work_date: Mapped[datetime.date]
     mileage: Mapped[int]
     work_id: Mapped[int] = mapped_column(
