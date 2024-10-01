@@ -1,7 +1,7 @@
 from sqlalchemy import Result, desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.vehicles.crud import update_vehicle_mileage_from_event
+from api_v1.vehicles.utils import update_vehicle_mileage_from_event
 from core.models import MileageEvent
 from core.schemas.mileage_events import MileageEvent as MileageEventSchema
 from core.schemas.mileage_events import MileageEventCreate, MileageEventUpdate

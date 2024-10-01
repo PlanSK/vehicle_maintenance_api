@@ -1,10 +1,11 @@
-from sqlalchemy import Result, desc, select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.vehicles.crud import update_vehicle_mileage_from_event
 from core.models import Event
 from core.schemas.events import Event as EventSchema
 from core.schemas.events import EventCreate, EventUpdate
+
+from .utils import update_vehicle_mileage_from_work_event
 
 
 async def get_event_by_id(
@@ -20,12 +21,10 @@ async def create_event(
     session.add(event)
     await session.commit()
     await session.refresh(event)
+    await update_vehicle_mileage_from_work_event(
+        work_id=event.work_id, event_mileage=event.mileage, session=session
+    )
 
-    # await update_vehicle_mileage_from_event(
-    #     session=session,
-    #     vehicle_id=event.vehicle_id,
-    #     event_mileage=event.mileage,
-    # )
     return event
 
 

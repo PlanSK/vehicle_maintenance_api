@@ -2,7 +2,7 @@ from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.works.crud import create_works_on_create_vehicle
-from core.models.vehicle import Vehicle
+from core.models import Vehicle
 from core.schemas.vehicles import Vehicle as VehicleSchema
 from core.schemas.vehicles import VehicleCreate, VehicleUpdate
 from core.vin import VIN_Type
@@ -70,14 +70,3 @@ async def delete_vehicle(
 async def get_vehicle_by_vin(session: AsyncSession, vin: VIN_Type):
     statement = select(Vehicle).where(Vehicle.vin_code == vin)
     return await session.scalar(statement)
-
-
-async def update_vehicle_mileage_from_event(
-    session: AsyncSession, vehicle_id: int, event_mileage: int
-) -> None:
-    vehicle_instance = await get_vehicle_by_id(
-        vehicle_id=vehicle_id, session=session
-    )
-    if vehicle_instance and vehicle_instance.vehicle_mileage < event_mileage:
-        vehicle_instance.vehicle_mileage = event_mileage
-        await session.commit()
