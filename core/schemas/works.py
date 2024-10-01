@@ -22,8 +22,8 @@ class WorkPattern(WorkPatternBase):
 
 class WorkBase(BaseModel):
     title: str
-    interval_month: int
-    interval_km: int
+    interval_month: int | None = None
+    interval_km: int | None = None
     work_type: WorkType
     note: str = ""
     vehicle_id: int

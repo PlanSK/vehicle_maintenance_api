@@ -1,19 +1,19 @@
 """Create tables from models.
 
-Revision ID: 7a2127201e70
+Revision ID: fac270d4383e
 Revises: 
-Create Date: 2024-09-17 22:04:03.810322
+Create Date: 2024-10-01 16:14:12.190898
 
 """
 
 from typing import Sequence, Union
 
+from alembic import op
 import sqlalchemy as sa
 
-from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = "7a2127201e70"
+revision: str = "fac270d4383e"
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -55,16 +55,11 @@ def upgrade() -> None:
         sa.Column("vehicle_mileage", sa.Integer(), nullable=False),
         sa.Column("vehicle_last_update_date", sa.Date(), nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["owner_id"], ["api_users.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["owner_id"], ["api_users.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index(
-        op.f("ix_api_vehicles_vin_code"),
-        "api_vehicles",
-        ["vin_code"],
-        unique=True,
+        op.f("ix_api_vehicles_vin_code"), "api_vehicles", ["vin_code"], unique=True
     )
     op.create_table(
         "api_mileageevents",
@@ -72,16 +67,14 @@ def upgrade() -> None:
         sa.Column("mileage", sa.Integer(), nullable=False),
         sa.Column("vehicle_id", sa.Integer(), nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["vehicle_id"], ["api_vehicles.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["vehicle_id"], ["api_vehicles.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
         "api_works",
         sa.Column("title", sa.String(), nullable=False),
-        sa.Column("interval_month", sa.Integer(), nullable=False),
-        sa.Column("interval_km", sa.Integer(), nullable=False),
+        sa.Column("interval_month", sa.Integer(), nullable=True),
+        sa.Column("interval_km", sa.Integer(), nullable=True),
         sa.Column(
             "work_type",
             sa.Enum("MAINTENANCE", "REPAIR", "TUNING", name="worktype"),
@@ -90,9 +83,7 @@ def upgrade() -> None:
         sa.Column("note", sa.String(), nullable=False),
         sa.Column("vehicle_id", sa.Integer(), nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["vehicle_id"], ["api_vehicles.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["vehicle_id"], ["api_vehicles.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_table(
@@ -105,12 +96,8 @@ def upgrade() -> None:
         sa.Column("note", sa.String(), nullable=False),
         sa.Column("vehicle_id", sa.Integer(), nullable=False),
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["vehicle_id"], ["api_vehicles.id"], ondelete="CASCADE"
-        ),
-        sa.ForeignKeyConstraint(
-            ["work_id"], ["api_works.id"], ondelete="CASCADE"
-        ),
+        sa.ForeignKeyConstraint(["vehicle_id"], ["api_vehicles.id"], ondelete="CASCADE"),
+        sa.ForeignKeyConstraint(["work_id"], ["api_works.id"], ondelete="CASCADE"),
         sa.PrimaryKeyConstraint("id"),
     )
     # ### end Alembic commands ###
