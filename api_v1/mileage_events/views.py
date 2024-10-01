@@ -13,7 +13,7 @@ from . import crud
 router = APIRouter(prefix="/mileage_events", tags=["Mileage Events"])
 
 
-async def get_mileage_event_by_id_or_exception(
+async def get_mileage_work_event_by_id_or_exception(
     mileage_event_id: int,
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
@@ -23,7 +23,7 @@ async def get_mileage_event_by_id_or_exception(
         return instance
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"Event with id {mileage_event_id} not found.",
+        detail=f"Work event with id {mileage_event_id} not found.",
     )
 
 
@@ -56,7 +56,7 @@ async def get_vehicle_mileage_events(
 async def update_mileage_event(
     mileage_event_update: MileageEventUpdate,
     mileage_event: MileageEvent = Depends(
-        get_mileage_event_by_id_or_exception
+        get_mileage_work_event_by_id_or_exception
     ),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
@@ -70,7 +70,7 @@ async def update_mileage_event(
 @router.delete("/{mileage_event_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_mileage_event(
     mileage_event: MileageEvent = Depends(
-        get_mileage_event_by_id_or_exception
+        get_mileage_work_event_by_id_or_exception
     ),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ) -> None:

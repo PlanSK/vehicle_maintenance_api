@@ -3,10 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.vehicles.utils import update_vehicle_mileage_from_event
 from api_v1.works.crud import get_work_by_id
-from core.models import Event
+
+from core.models import WorkEvent
 
 
-async def get_average_mileage_interval(events_list: list[Event]) -> int:
+async def get_average_mileage_interval(events_list: list[WorkEvent]) -> int:
     mileages_list = [event.mileage for event in events_list]
     event_counter = len(mileages_list)
     if event_counter <= 1:

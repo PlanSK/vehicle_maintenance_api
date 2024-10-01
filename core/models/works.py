@@ -7,7 +7,7 @@ from .base import BaseDbModel
 from .mixins import VehicleRelationMixin
 
 if TYPE_CHECKING:
-    from .event import Event
+    from .work_event import WorkEvent
 
 
 class WorkType(Enum):
@@ -30,4 +30,4 @@ class Work(VehicleRelationMixin, BaseDbModel):
     interval_km: Mapped[int | None]
     work_type: Mapped[WorkType] = mapped_column(default=WorkType.MAINTENANCE)
     note: Mapped[str] = mapped_column(default="")
-    events: Mapped[list["Event"]] = relationship()
+    events: Mapped[list["WorkEvent"]] = relationship()

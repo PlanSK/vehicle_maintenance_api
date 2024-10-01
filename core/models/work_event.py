@@ -6,7 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from .base import DB_PREFIX, BaseDbModel
 
 
-class Event(BaseDbModel):
+class WorkEvent(BaseDbModel):
     work_date: Mapped[datetime.date]
     mileage: Mapped[int]
     work_id: Mapped[int] = mapped_column(

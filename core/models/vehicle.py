@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import DB_PREFIX, BaseDbModel
 
 if TYPE_CHECKING:
-    from .event import Event
+    from .work_event import WorkEvent
     from .mileage_event import MileageEvent
     from .user import User
     from .works import Work
@@ -27,7 +27,6 @@ class Vehicle(BaseDbModel):
     vehicle_last_update_date: Mapped[datetime.date] = mapped_column(
         onupdate=datetime.date.today
     )
-    events: Mapped[list["Event"]] = relationship(back_populates="vehicle")
     works: Mapped[list["Work"]] = relationship(back_populates="vehicle")
     mileage_events: Mapped[list["MileageEvent"]] = relationship(
         back_populates="vehicle"

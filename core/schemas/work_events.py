@@ -3,17 +3,16 @@ import datetime
 from pydantic import BaseModel, ConfigDict
 
 
-class EventBase(BaseModel):
+class WorkEventBase(BaseModel):
     work_date: datetime.date
     mileage: int
     work_id: int
-    vehicle_id: int
     part_price: float
     work_price: float
     note: str
 
 
-class EventUpdate(BaseModel):
+class WorkEventUpdate(BaseModel):
     work_date: datetime.date | None = None
     mileage: int | None = None
     part_price: float | None = None
@@ -21,11 +20,11 @@ class EventUpdate(BaseModel):
     note: str | None = None
 
 
-class EventCreate(EventBase):
+class WorkEventCreate(WorkEventBase):
     pass
 
 
-class Event(EventBase):
+class WorkEvent(WorkEventBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
