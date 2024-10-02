@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.auth.validate import get_current_active_user
 from core.database import db_interface
-from core.schemas.users import User
-from core.schemas.vehicles import Vehicle, VehicleCreate, VehicleUpdate
+from core.schemas.users import UserSchema
+from core.schemas.vehicles import VehicleCreate, VehicleSchema, VehicleUpdate
 from core.vin import vin_code_validator
 
 from . import crud
@@ -13,10 +13,12 @@ from .utils import get_vehicle_by_id_or_exceprion
 router = APIRouter(prefix="/vehicle", tags=["Vehicles"])
 
 
-@router.post("/", response_model=Vehicle, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/", response_model=VehicleSchema, status_code=status.HTTP_201_CREATED
+)
 async def create_vehicle(
     vehicle_data: VehicleCreate,
-    user: User = Depends(get_current_active_user),
+    user: UserSchema = Depends(get_current_active_user),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
     return await crud.create_vehicle(
@@ -24,7 +26,7 @@ async def create_vehicle(
     )
 
 
-@router.get("/", response_model=list[Vehicle])
+@router.get("/", response_model=list[VehicleSchema])
 async def get_all_vehicles(
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
@@ -41,7 +43,7 @@ async def get_vehicle_by_id(
     )
 
 
-@router.get("/by_user_id/{user_id}/", response_model=list[Vehicle])
+@router.get("/by_user_id/{user_id}/", response_model=list[VehicleSchema])
 async def get_users_vehicles(
     user_id: int,
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
@@ -52,7 +54,7 @@ async def get_users_vehicles(
 @router.patch("/{vehicle_id}/")
 async def update_vehicle_partial(
     vehicle_update: VehicleUpdate,
-    vehicle: Vehicle = Depends(get_vehicle_by_id_or_exceprion),
+    vehicle: VehicleSchema = Depends(get_vehicle_by_id_or_exceprion),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
     return await crud.update_vehicle(
@@ -62,13 +64,13 @@ async def update_vehicle_partial(
 
 @router.delete("/{vehicle_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
-    vehicle: Vehicle = Depends(get_vehicle_by_id_or_exceprion),
+    vehicle: VehicleSchema = Depends(get_vehicle_by_id_or_exceprion),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ) -> None:
     return await crud.delete_vehicle(session=session, vehicle=vehicle)
 
 
-@router.get("/by_vin/{vehicle_vin}/", response_model=Vehicle)
+@router.get("/by_vin/{vehicle_vin}/", response_model=VehicleSchema)
 async def get_vehicle_by_vin(
     vehicle_vin: str,
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),

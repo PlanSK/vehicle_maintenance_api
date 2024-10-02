@@ -18,6 +18,7 @@ class VehicleBase(BaseModel):
 class VehicleCreate(VehicleBase):
     pass
 
+
 class VehicleUpdate(BaseModel):
     vin_code: VIN_Type | None = None
     vehicle_manufacturer: str | None = None
@@ -27,7 +28,7 @@ class VehicleUpdate(BaseModel):
     vehicle_mileage: int | None = None
 
 
-class Vehicle(VehicleBase):
+class VehicleSchema(VehicleBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
     owner_id: int

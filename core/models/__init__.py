@@ -2,14 +2,16 @@ all = (
     "BaseDbModel",
     "User",
     "Vehicle",
-    "Event",
+    "WorkEvent",
     "Work",
     "WorkPattern",
     "MileageEvent",
 )
 
 from .base import BaseDbModel
+from .mileage_event import MileageEvent
 from .user import User
 from .vehicle import Vehicle
-from .works import Work, WorkPattern
-from .events import Event, MileageEvent
+from .work_event import WorkEvent
+from .workpattern import WorkPattern
+from .works import Work
