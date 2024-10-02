@@ -16,12 +16,6 @@ class WorkType(Enum):
     TUNING = "Tuning"
 
 
-class WorkPattern(BaseDbModel):
-    title: Mapped[str]
-    interval_month: Mapped[int]
-    interval_km: Mapped[int]
-
-
 class Work(VehicleRelationMixin, BaseDbModel):
     _vehicle_back_populates = "works"
 

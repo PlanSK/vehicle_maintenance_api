@@ -12,7 +12,7 @@ from core.schemas.users import (
 from . import crud
 from .dependencies import user_by_id
 
-router = APIRouter(tags=["Users"])
+router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.get("/", response_model=list[UserSchema])

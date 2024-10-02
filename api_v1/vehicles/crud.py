@@ -1,7 +1,7 @@
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from api_v1.works.crud import create_works_on_create_vehicle
+from api_v1.works.utils import create_works_on_create_vehicle
 from core.models import Vehicle
 from core.schemas.vehicles import VehicleCreate, VehicleSchema, VehicleUpdate
 from core.vin import VIN_Type

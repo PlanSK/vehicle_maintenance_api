@@ -9,8 +9,9 @@ all = (
 )
 
 from .base import BaseDbModel
+from .mileage_event import MileageEvent
 from .user import User
 from .vehicle import Vehicle
-from .works import Work, WorkPattern
 from .work_event import WorkEvent
-from .mileage_event import MileageEvent
+from .workpattern import WorkPattern
+from .works import Work

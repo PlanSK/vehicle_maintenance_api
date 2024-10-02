@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 
 from .config import BASE_DIR
 from .database import db_interface
-from .models.works import WorkPattern
+from .models.workpattern import WorkPattern
 
 
 async def get_workpattern_data_from_json(json_file_path: str | Path) -> list:
