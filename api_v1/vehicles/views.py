@@ -8,7 +8,7 @@ from core.schemas.vehicles import VehicleCreate, VehicleSchema, VehicleUpdate
 from core.vin import vin_code_validator
 
 from . import crud
-from .utils import get_vehicle_by_id_or_exceprion
+from .dependencies import get_vehicle_by_id_or_exceprion
 
 router = APIRouter(prefix="/vehicle", tags=["Vehicles"])
 
@@ -35,12 +35,9 @@ async def get_all_vehicles(
 
 @router.get("/{vehicle_id}/")
 async def get_vehicle_by_id(
-    vehicle_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    vehicle: VehicleSchema = Depends(get_vehicle_by_id_or_exceprion),
 ):
-    return await get_vehicle_by_id_or_exceprion(
-        vehicle_id=vehicle_id, session=session
-    )
+    return vehicle
 
 
 @router.get("/by_user_id/{user_id}/", response_model=list[VehicleSchema])

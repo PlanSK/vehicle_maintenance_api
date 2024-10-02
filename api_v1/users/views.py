@@ -10,7 +10,7 @@ from core.schemas.users import (
 )
 
 from . import crud
-from .dependencies import user_by_id
+from .utils import user_by_id
 
 router = APIRouter(prefix="/users", tags=["Users"])
 

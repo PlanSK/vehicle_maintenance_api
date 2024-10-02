@@ -1,5 +1,3 @@
-from unittest import result
-
 from sqlalchemy import Result, select
 from sqlalchemy.ext.asyncio import AsyncSession
 

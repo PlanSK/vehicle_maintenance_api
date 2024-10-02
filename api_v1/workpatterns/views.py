@@ -1,7 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-import api_v1.workpatterns.crud
 from core.database import db_interface
 from core.schemas.workpattern import (
     WorkPatternBase,
@@ -9,21 +8,10 @@ from core.schemas.workpattern import (
     WorkPatternUpdate,
 )
 
+from . import crud
+from .dependencies import get_workppatten_by_id_or_exception
+
 router = APIRouter(prefix="/workpatterns", tags=["Work patterns"])
-
-
-async def get_workppatten_by_id_or_exception(
-    workpattern_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
-):
-    if instance := await api_v1.workpatterns.crud.get_workpattern_by_id(
-        workpattern_id=workpattern_id, session=session
-    ):
-        return instance
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"Workpatten with id {workpattern_id} not found.",
-    )
 
 
 @router.post(
@@ -34,7 +22,7 @@ async def create_workpattern(
     # user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
-    return await api_v1.workpatterns.crud.create_workpattern(
+    return await crud.create_workpattern(
         session=session, work_pattern_data=work_pattern_data
     )
 
@@ -43,17 +31,16 @@ async def create_workpattern(
 async def get_all_workpatterns(
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
-    return await api_v1.workpatterns.crud.get_all_workpatterns(session=session)
+    return await crud.get_all_workpatterns(session=session)
 
 
 @router.get("/{workpattern_id}/")
 async def get_workpattern_by_id(
-    workpattern_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    workpattern: WorkPatternSchema = Depends(
+        get_workppatten_by_id_or_exception
+    ),
 ):
-    return await api_v1.workpatterns.crud.get_workpattern_by_id(
-        workpattern_id=workpattern_id, session=session
-    )
+    return workpattern
 
 
 @router.patch("/{workpattern_id}/")
@@ -64,7 +51,7 @@ async def update_workpattern(
     ),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
-    return await api_v1.workpatterns.crud.update_workpattern(
+    return await crud.update_workpattern(
         session=session,
         workpattern=workpattern,
         workpattern_update=workpattern_update,
@@ -78,6 +65,6 @@ async def delete_workpattern(
     ),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ) -> None:
-    return await api_v1.workpatterns.crud.delete_workpattern(
+    return await crud.delete_workpattern(
         session=session, workpattern=workpattern
     )

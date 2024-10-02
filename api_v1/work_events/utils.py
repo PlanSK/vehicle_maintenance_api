@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.vehicles.utils import update_vehicle_mileage_from_event
 from api_v1.works.crud import get_work_by_id
-
 from core.models import WorkEvent
 
 

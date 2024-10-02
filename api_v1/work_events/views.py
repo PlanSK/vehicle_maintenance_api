@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import db_interface
@@ -10,28 +10,13 @@ from core.schemas.work_events import (
 )
 
 from . import crud, utils
+from .dependencies import get_event_by_id_or_exception
 
 router = APIRouter(prefix="/work_events", tags=["Work Events"])
 
 
-async def get_event_by_id_or_exception(
-    event_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
-):
-    if instance := await crud.get_event_by_id(
-        event_id=event_id, session=session
-    ):
-        return instance
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"Work event with id {event_id} not found.",
-    )
-
-
 @router.post(
-    "/",
-    response_model=WorkEventSchema,
-    status_code=status.HTTP_201_CREATED,
+    "/", response_model=WorkEventSchema, status_code=status.HTTP_201_CREATED
 )
 async def create_work_event(
     event_data: WorkEventCreate,
@@ -58,6 +43,13 @@ async def delete_work_event(
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ) -> None:
     return await crud.delete_work_event(session=session, event=event)
+
+
+@router.get("/{event_id}/")
+async def get_work_event_by_id(
+    work_event: WorkEventSchema = Depends(get_event_by_id_or_exception),
+):
+    return work_event
 
 
 @router.get("/by_work_id/{work_id}/")

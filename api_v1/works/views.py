@@ -1,24 +1,13 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import db_interface
 from core.schemas.works import WorkBase, WorkSchema, WorkUpdate
 
 from . import crud
+from .dependencies import get_work_by_id_or_exception
 
 router = APIRouter(prefix="/works", tags=["Works"])
-
-
-async def get_work_by_id_or_exception(
-    work_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
-):
-    if instance := await crud.get_work_by_id(work_id=work_id, session=session):
-        return instance
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"Work with id {work_id} not found.",
-    )
 
 
 @router.post(
@@ -44,10 +33,9 @@ async def get_works_by_vehice_id(
 
 @router.get("/{work_id}/")
 async def get_work_by_id(
-    work_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    work: WorkSchema = Depends(get_work_by_id_or_exception),
 ):
-    return get_work_by_id_or_exception(work_id=work_id, session=session)
+    return work
 
 
 @router.patch("/{workpattern_id}/")
