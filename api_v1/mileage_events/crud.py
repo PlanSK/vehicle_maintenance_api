@@ -3,8 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.vehicles.utils import update_vehicle_mileage_from_event
 from core.models import MileageEvent
-from core.schemas.mileage_events import MileageEvent as MileageEventSchema
-from core.schemas.mileage_events import MileageEventCreate, MileageEventUpdate
+from core.schemas.mileage_events import (
+    MileageEventCreate,
+    MileageEventSchema,
+    MileageEventUpdate,
+)
 
 
 async def get_mileage_event_by_id(

@@ -18,7 +18,7 @@ class MileageEventCreate(MileageEventBase):
     pass
 
 
-class MileageEvent(MileageEventBase):
+class MileageEventSchema(MileageEventBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int

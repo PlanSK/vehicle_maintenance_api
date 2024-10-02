@@ -15,7 +15,7 @@ class WorkPatternUpdate(BaseModel):
     interval_km: int | None = None
 
 
-class WorkPattern(WorkPatternBase):
+class WorkPatternSchema(WorkPatternBase):
     model_config = ConfigDict(from_attributes=True)
     id: int
 
@@ -37,6 +37,6 @@ class WorkUpdate(BaseModel):
     note: str | None = None
 
 
-class Work(WorkBase):
+class WorkSchema(WorkBase):
     model_config = ConfigDict(from_attributes=True)
     id: int

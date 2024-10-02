@@ -2,10 +2,14 @@ from sqlalchemy import Result, insert, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models.works import Work, WorkPattern
-from core.schemas.works import Work as WorkSchema
-from core.schemas.works import WorkBase
-from core.schemas.works import WorkPattern as WorkPatternSchema
-from core.schemas.works import WorkPatternBase, WorkPatternUpdate, WorkUpdate
+from core.schemas.works import (
+    WorkBase,
+    WorkPatternBase,
+    WorkPatternSchema,
+    WorkPatternUpdate,
+    WorkSchema,
+    WorkUpdate,
+)
 
 
 async def create_workpattern(

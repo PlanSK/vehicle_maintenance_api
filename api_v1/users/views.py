@@ -2,22 +2,29 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import db_interface
+from core.schemas.users import (
+    UserCreate,
+    UserSchema,
+    UserUpdate,
+    UserUpdatePart,
+)
 
 from . import crud
 from .dependencies import user_by_id
-from core.schemas.users import User, UserCreate, UserUpdate, UserUpdatePart
 
 router = APIRouter(tags=["Users"])
 
 
-@router.get("/", response_model=list[User])
+@router.get("/", response_model=list[UserSchema])
 async def get_users(
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
     return await crud.get_users(session=session)
 
 
-@router.post("/", response_model=User, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/", response_model=UserSchema, status_code=status.HTTP_201_CREATED
+)
 async def create_user(
     user_data: UserCreate,
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
@@ -33,15 +40,15 @@ async def get_user_by_username(
     return await crud.get_user_by_username(session=session, username=username)
 
 
-@router.get("/{user_id}/", response_model=User)
-async def get_user(user: User = Depends(user_by_id)):
+@router.get("/{user_id}/", response_model=UserSchema)
+async def get_user(user: UserSchema = Depends(user_by_id)):
     return user
 
 
 @router.put("/{user_id}/")
 async def update_user(
     user_update: UserUpdate,
-    user: User = Depends(user_by_id),
+    user: UserSchema = Depends(user_by_id),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
     return await crud.update_user(
@@ -52,7 +59,7 @@ async def update_user(
 @router.patch("/{user_id}/")
 async def update_user_partial(
     user_update: UserUpdatePart,
-    user: User = Depends(user_by_id),
+    user: UserSchema = Depends(user_by_id),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
     return await crud.update_user(
@@ -62,7 +69,7 @@ async def update_user_partial(
 
 @router.delete("/{user_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
-    user: User = Depends(user_by_id),
+    user: UserSchema = Depends(user_by_id),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ) -> None:
     return await crud.delete_user(session=session, user=user)

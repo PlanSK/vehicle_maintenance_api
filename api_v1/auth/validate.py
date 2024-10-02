@@ -2,7 +2,7 @@ from fastapi import Depends, Form
 from loguru import logger
 
 from auth.password_operators import password_validation
-from core.schemas.users import User
+from core.schemas.users import UserSchema
 
 from .exceptions import http_forbidden_exception, http_unauth_exception
 from .getters import get_active_user_from_payload, get_user_from_db_by_username
@@ -24,7 +24,7 @@ async def auth_user_validate(username: str = Form(), password: str = Form()):
 
 
 async def get_current_active_user(
-    user: User = Depends(get_active_user_from_payload),
+    user: UserSchema = Depends(get_active_user_from_payload),
 ):
     if user.is_active:
         return user

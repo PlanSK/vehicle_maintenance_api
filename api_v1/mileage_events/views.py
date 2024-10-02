@@ -3,8 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import db_interface
 from core.schemas.mileage_events import (
-    MileageEvent,
     MileageEventCreate,
+    MileageEventSchema,
     MileageEventUpdate,
 )
 
@@ -29,7 +29,7 @@ async def get_mileage_work_event_by_id_or_exception(
 
 @router.post(
     "/",
-    response_model=MileageEvent,
+    response_model=MileageEventSchema,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_mileage_event(
@@ -55,7 +55,7 @@ async def get_vehicle_mileage_events(
 @router.patch("/{mileage_event_id}/")
 async def update_mileage_event(
     mileage_event_update: MileageEventUpdate,
-    mileage_event: MileageEvent = Depends(
+    mileage_event: MileageEventSchema = Depends(
         get_mileage_work_event_by_id_or_exception
     ),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
@@ -69,7 +69,7 @@ async def update_mileage_event(
 
 @router.delete("/{mileage_event_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_mileage_event(
-    mileage_event: MileageEvent = Depends(
+    mileage_event: MileageEventSchema = Depends(
         get_mileage_work_event_by_id_or_exception
     ),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),

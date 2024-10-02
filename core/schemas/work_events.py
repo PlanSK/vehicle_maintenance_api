@@ -24,7 +24,7 @@ class WorkEventCreate(WorkEventBase):
     pass
 
 
-class WorkEvent(WorkEventBase):
+class WorkEventSchema(WorkEventBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int

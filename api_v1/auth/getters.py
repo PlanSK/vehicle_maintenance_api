@@ -7,7 +7,7 @@ from api_v1.users.crud import get_user_by_username
 from auth.utils import decode_jwt
 from core.config import settings
 from core.database import db_interface
-from core.schemas.users import User
+from core.schemas.users import UserSchema
 
 from .exceptions import http_unauth_exception
 from .token import ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE, token_type_validation
@@ -27,7 +27,7 @@ async def get_user_from_db_by_username(username: str):
         user = await get_user_by_username(session=session, username=username)
     if not user:
         return None
-    return User.model_validate(user)
+    return UserSchema.model_validate(user)
 
 
 async def get_payload_from_token(
@@ -46,7 +46,7 @@ async def get_payload_from_token(
 
 async def get_active_user_from_payload(
     payload: dict = Depends(get_payload_from_token),
-) -> User:
+) -> UserSchema:
     if await token_type_validation(
         payload=payload, needed_token_type=ACCESS_TOKEN_TYPE
     ):
@@ -59,7 +59,7 @@ async def get_active_user_from_payload(
 
 async def get_active_user_from_payload_for_refresh(
     payload: dict = Depends(get_payload_from_token),
-) -> User:
+) -> UserSchema:
     if await token_type_validation(
         payload=payload, needed_token_type=REFRESH_TOKEN_TYPE
     ):

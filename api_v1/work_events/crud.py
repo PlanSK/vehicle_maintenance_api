@@ -2,8 +2,11 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import WorkEvent
-from core.schemas.work_events import WorkEvent as WorkEventSchema
-from core.schemas.work_events import WorkEventCreate, WorkEventUpdate
+from core.schemas.work_events import (
+    WorkEventCreate,
+    WorkEventSchema,
+    WorkEventUpdate,
+)
 
 from .utils import update_vehicle_mileage_from_work_event
 

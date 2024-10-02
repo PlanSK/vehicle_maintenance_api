@@ -2,9 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import db_interface
+from core.models import WorkEvent
 from core.schemas.work_events import (
-    WorkEvent,
     WorkEventCreate,
+    WorkEventSchema,
     WorkEventUpdate,
 )
 
@@ -29,7 +30,7 @@ async def get_event_by_id_or_exception(
 
 @router.post(
     "/",
-    response_model=WorkEvent,
+    response_model=WorkEventSchema,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_work_event(
@@ -43,7 +44,7 @@ async def create_work_event(
 @router.patch("/{event_id}/")
 async def update_work_event(
     event_update: WorkEventUpdate,
-    event: WorkEvent = Depends(get_event_by_id_or_exception),
+    event: WorkEventSchema = Depends(get_event_by_id_or_exception),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
     return await crud.update_work_event(
@@ -53,7 +54,7 @@ async def update_work_event(
 
 @router.delete("/{event_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_work_event(
-    event: WorkEvent = Depends(get_event_by_id_or_exception),
+    event: WorkEventSchema = Depends(get_event_by_id_or_exception),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ) -> None:
     return await crud.delete_work_event(session=session, event=event)
@@ -74,7 +75,7 @@ async def get_average_interval_km_for_event(
     work_id: int,
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
-    events_list = await crud.get_work_events_by_work_id(
+    events_list: list[WorkEvent] = await crud.get_work_events_by_work_id(
         session=session, work_id=work_id
     )
     return await utils.get_average_mileage_interval(events_list=events_list)

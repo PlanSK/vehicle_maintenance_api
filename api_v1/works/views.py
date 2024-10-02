@@ -3,11 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import db_interface
 from core.schemas.works import (
-    Work,
     WorkBase,
-    WorkPattern,
     WorkPatternBase,
+    WorkPatternSchema,
     WorkPatternUpdate,
+    WorkSchema,
     WorkUpdate,
 )
 
@@ -46,7 +46,7 @@ async def get_work_by_id_or_exception(
 
 @router.post(
     f"{_WORKPATTERN_PREFIX}/",
-    response_model=WorkPattern,
+    response_model=WorkPatternSchema,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_workpattern(
@@ -59,7 +59,7 @@ async def create_workpattern(
     )
 
 
-@router.get(f"{_WORKPATTERN_PREFIX}/", response_model=list[WorkPattern])
+@router.get(f"{_WORKPATTERN_PREFIX}/", response_model=list[WorkPatternSchema])
 async def get_all_workpatterns(
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
@@ -79,7 +79,9 @@ async def get_workpattern_by_id(
 @router.patch(f"{_WORKPATTERN_PREFIX}/" + "{workpattern_id}/")
 async def update_workpattern(
     workpattern_update: WorkPatternUpdate,
-    workpattern: WorkPattern = Depends(get_workppatten_by_id_or_exception),
+    workpattern: WorkPatternSchema = Depends(
+        get_workppatten_by_id_or_exception
+    ),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
     return await crud.update_workpattern(
@@ -94,7 +96,9 @@ async def update_workpattern(
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_workpattern(
-    workpattern: WorkPattern = Depends(get_workppatten_by_id_or_exception),
+    workpattern: WorkPatternSchema = Depends(
+        get_workppatten_by_id_or_exception
+    ),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ) -> None:
     return await crud.delete_workpattern(
@@ -102,7 +106,9 @@ async def delete_workpattern(
     )
 
 
-@router.post("/", response_model=Work, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/", response_model=WorkSchema, status_code=status.HTTP_201_CREATED
+)
 async def create_work(
     work_data: WorkBase,
     # user: User = Depends(get_current_active_user),
@@ -132,7 +138,7 @@ async def get_work_by_id(
 @router.patch("/{workpattern_id}/")
 async def update_work(
     work_update: WorkUpdate,
-    work: Work = Depends(get_work_by_id_or_exception),
+    work: WorkSchema = Depends(get_work_by_id_or_exception),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
     return await crud.update_work(
@@ -142,7 +148,7 @@ async def update_work(
 
 @router.delete("/{work_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_work(
-    work: Work = Depends(get_work_by_id_or_exception),
+    work: WorkSchema = Depends(get_work_by_id_or_exception),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ) -> None:
     return await crud.delete_work(session=session, work=work)

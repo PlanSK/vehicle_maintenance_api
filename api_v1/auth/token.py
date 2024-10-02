@@ -3,8 +3,10 @@ from pydantic import BaseModel
 
 from auth.utils import encode_jwt
 from core.config import settings
-from core.schemas.users import User
+from core.schemas.users import UserSchema
+
 from .exceptions import http_unauth_exception
+
 
 class TokenInfo(BaseModel):
     access_token: str
@@ -33,7 +35,7 @@ async def create_jwt(
     )
 
 
-async def create_access_token(user: User) -> str:
+async def create_access_token(user: UserSchema) -> str:
     access_token_payload = {
         "sub": user.username,
         "user_id": user.id,
@@ -46,7 +48,7 @@ async def create_access_token(user: User) -> str:
     )
 
 
-async def create_refresh_token(user: User):
+async def create_refresh_token(user: UserSchema):
     refresh_token_payload = {
         "sub": user.username,
         "user_id": user.id,
