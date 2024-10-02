@@ -8,12 +8,14 @@ from core.models import WorkEvent
 
 
 async def get_average_mileage_interval(events_list: list[WorkEvent]) -> int:
-    mileages_list = [event.mileage for event in events_list]
+    mileages_list = sorted([event.mileage for event in events_list])
     event_counter = len(mileages_list)
-    if event_counter <= 1:
+    if event_counter <= 0:
         return 0
+    elif event_counter == 1:
+        return mileages_list[0]
     previous_mileage = mileages_list[0]
-    mileage_delta_sum = 0
+    mileage_delta_sum: int = 0
     for mileage in mileages_list:
         mileage_delta_sum += mileage - previous_mileage
         previous_mileage = mileage
