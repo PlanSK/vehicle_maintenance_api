@@ -17,9 +17,9 @@ async def create_mileage_event(
     session: AsyncSession, mileage_event_data: MileageEventCreate
 ) -> MileageEvent:
     mileage_event = MileageEvent(**mileage_event_data.model_dump())
-    session.add(MileageEvent)
+    session.add(mileage_event)
     await session.commit()
-    await session.refresh(MileageEvent)
+    await session.refresh(mileage_event)
 
     await update_vehicle_mileage_from_event(
         session=session,
@@ -38,9 +38,9 @@ async def get_vehicle_mileage_events(
         .order_by(desc(getattr(MileageEvent, "mileage_date")))
     )
     result: Result = await session.execute(statement)
-    events_list: list = list(result.scalars().all())
+    mileage_events_list: list = list(result.scalars().all())
 
-    return events_list
+    return mileage_events_list
 
 
 async def update_mileage_event(
@@ -57,7 +57,7 @@ async def update_mileage_event(
 
 
 async def delete_mileage_event(
-    session: AsyncSession, event: MileageEventSchema
+    session: AsyncSession, mileage_event: MileageEventSchema
 ) -> None:
-    await session.delete(event)
+    await session.delete(mileage_event)
     await session.commit()

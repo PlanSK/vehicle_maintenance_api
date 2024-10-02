@@ -75,5 +75,5 @@ async def delete_mileage_event(
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ) -> None:
     return await crud.delete_mileage_event(
-        session=session, event=mileage_event
+        session=session, mileage_event=mileage_event
     )
