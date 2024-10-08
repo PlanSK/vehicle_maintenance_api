@@ -42,5 +42,10 @@ if app.swagger_ui_oauth2_redirect_url:
         return get_swagger_ui_oauth2_redirect_html()
 
 
+@app.get("/")
+async def main_page():
+    return {"message": "Vehicle maintenance API main page."}
+
+
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)
