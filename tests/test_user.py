@@ -1,3 +1,5 @@
+from urllib import response
+
 from httpx import AsyncClient
 from pytest import FixtureDef
 
@@ -6,6 +8,8 @@ from core.schemas.users import UserCreate, UserSchema
 
 from .conftest import async_session_maker
 
+
+USERS_API_URL = "/api/v1/users/"
 
 async def test_create_user(async_conn: AsyncClient):
     user_create_json = UserCreate(
@@ -16,7 +20,7 @@ async def test_create_user(async_conn: AsyncClient):
         password="qwerty",
     )
     response = await async_conn.post(
-        "/api/v1/users/",
+        USERS_API_URL,
         json=user_create_json.model_dump(),
     )
     assert response.status_code == 201
@@ -32,7 +36,7 @@ async def test_create_user(async_conn: AsyncClient):
 async def test_get_users(
     async_conn: AsyncClient, create_test_users_list: FixtureDef
 ):
-    response = await async_conn.get("/api/v1/users/")
+    response = await async_conn.get(USERS_API_URL)
     assert response.status_code == 200
     result: list[dict] = response.json()
     assert len(result) == 2
@@ -41,3 +45,19 @@ async def test_get_users(
             assert user_dict.get("username") == "test1"
         if user_dict.get("id") == 2:
             assert user_dict.get("username") == "test2"
+
+
+async def test_get_user_by_username(
+    async_conn: AsyncClient, create_test_users_list: FixtureDef
+):
+    test_available_name = "test1"
+    test_unavailable_name = "unknown_name"
+    response = await async_conn.get(
+        USERS_API_URL + test_available_name + "/"
+    )
+    assert response.status_code == 200
+    response = await async_conn.get(
+        USERS_API_URL + test_unavailable_name + "/"
+    )
+    print(response.json())
+    assert response.status_code == 404
