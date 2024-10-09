@@ -53,19 +53,8 @@ async def get_user(user: UserSchema = Depends(user_by_id)):
     return user
 
 
-@router.put("/{user_id}/")
-async def update_user(
-    user_update: UserUpdate,
-    user: UserSchema = Depends(user_by_id),
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
-):
-    return await crud.update_user(
-        session=session, user=user, user_update=user_update
-    )
-
-
 @router.patch("/{user_id}/")
-async def update_user_partial(
+async def update_user(
     user_update: UserUpdatePart,
     user: UserSchema = Depends(user_by_id),
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
