@@ -1,6 +1,8 @@
+import random
 from typing import AsyncGenerator
 
 import pytest
+from faker import Faker
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
@@ -11,9 +13,11 @@ from sqlalchemy.ext.asyncio import (
 from core.database import db_interface
 from core.models import BaseDbModel
 from core.models.user import User
+from core.schemas.users import UserCreate, UserUpdatePart
 from main import app
 
 TEST_DB_URL = "sqlite+aiosqlite:///testdb.sqlite3"
+fake = Faker()
 
 engine_test = create_async_engine(url=TEST_DB_URL, echo=False)
 async_session_maker = async_sessionmaker(
@@ -49,28 +53,48 @@ async def async_conn() -> AsyncGenerator[AsyncClient, None]:
 
 
 @pytest.fixture(scope="function")
-async def create_test_users_list():
-    async with async_session_maker() as session:
-        session.add_all(
-            [
-                User(
-                    id=1,
-                    username="test1",
-                    first_name="Test1",
-                    last_name="",
-                    email="test1@example.com",
-                    password="qwerty",
-                    is_active=True,
-                ),
-                User(
-                    id=2,
-                    username="test2",
-                    first_name="Test2",
-                    last_name="",
-                    email="test2@example.com",
-                    password="qwerty",
-                    is_active=True,
-                ),
-            ]
+async def test_users_list_fixture() -> list[User]:
+    number_of_users = 3
+    test_users_list = [
+        User(
+            id=id,
+            username=fake.user_name(),
+            first_name=fake.first_name(),
+            last_name=fake.last_name(),
+            email=fake.email(),
+            password=fake.password(),
+            is_active=True,
         )
+        for id in range(1, number_of_users + 1)
+    ]
+
+    async with async_session_maker() as session:
+        session.add_all(test_users_list)
         await session.commit()
+    return test_users_list
+
+
+@pytest.fixture(scope="function")
+async def user_create_model() -> UserCreate:
+    return UserCreate(
+        username=fake.user_name(),
+        first_name=fake.first_name(),
+        last_name=fake.last_name(),
+        email=fake.email(),
+        password=fake.password(),
+    )
+
+
+@pytest.fixture(scope="function")
+async def unknown_user_test_name() -> str:
+    return fake.user_name()
+
+
+@pytest.fixture(scope="function")
+async def test_data_for_changing() -> dict:
+    return UserUpdatePart(
+        username=random.choice([None, fake.user_name()]),
+        first_name=random.choice([None, fake.first_name()]),
+        last_name=random.choice([None, fake.last_name()]),
+        email=random.choice([None, fake.email()]),
+    ).model_dump()
