@@ -32,7 +32,7 @@ async def create_user(
     return await crud.create_user(session=session, user_data=user_data)
 
 
-@router.get("/{username}/")
+@router.get("/username/{username}/")
 async def get_user_by_username(
     username: str,
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
@@ -48,7 +48,7 @@ async def get_user_by_username(
     return user_instance
 
 
-@router.get("/{user_id}/", response_model=UserSchema)
+@router.get("/id/{user_id}/", response_model=UserSchema)
 async def get_user(user: UserSchema = Depends(user_by_id)):
     return user
 
