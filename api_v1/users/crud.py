@@ -3,12 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from auth.password_operators import password_hasher
 from core.models import User
-from core.schemas.users import (
-    UserCreate,
-    UserSchema,
-    UserUpdate,
-    UserUpdatePart,
-)
+from core.schemas.users import UserCreate, UserSchema, UserUpdatePart
 
 
 async def get_users(session: AsyncSession) -> list[User]:
@@ -34,12 +29,11 @@ async def create_user(session: AsyncSession, user_data: UserCreate) -> User:
 
 
 async def update_user(
-    session: AsyncSession,
-    user: UserSchema,
-    user_update: UserUpdate | UserUpdatePart,
-    partial: bool = False,
+    session: AsyncSession, user: UserSchema, user_update: UserUpdatePart
 ) -> UserSchema:
-    for name, value in user_update.model_dump(exclude_unset=partial).items():
+    for name, value in user_update.model_dump(
+        exclude_unset=True, exclude_none=True
+    ).items():
         setattr(user, name, value)
     await session.commit()
     return user

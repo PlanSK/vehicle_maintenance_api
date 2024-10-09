@@ -2,12 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.database import db_interface
-from core.schemas.users import (
-    UserCreate,
-    UserSchema,
-    UserUpdate,
-    UserUpdatePart,
-)
+from core.schemas.users import UserCreate, UserSchema, UserUpdatePart
 
 from . import crud
 from .utils import user_by_id
@@ -60,7 +55,7 @@ async def update_user(
     session: AsyncSession = Depends(db_interface.scoped_session_dependency),
 ):
     return await crud.update_user(
-        session=session, user=user, user_update=user_update, partial=True
+        session=session, user=user, user_update=user_update
     )
 
 

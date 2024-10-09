@@ -12,10 +12,6 @@ class UserCreate(UserBase):
     password: str
 
 
-class UserUpdate(UserCreate):
-    pass
-
-
 class UserUpdatePart(BaseModel):
     username: str | None = None
     first_name: str | None = None
