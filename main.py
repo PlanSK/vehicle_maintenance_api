@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 
 from api_v1 import router as router_v1
 from core.config import settings
-from core.utils import add_workpatterns_models_to_db
+from core.lifespan import add_workpatterns_models_to_db
 
 
 @asynccontextmanager
