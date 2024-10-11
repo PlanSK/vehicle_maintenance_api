@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.database import db_interface
+from core.database import db_handler
 from core.models import WorkEvent
 from core.schemas.work_events import (
     WorkEventCreate,
@@ -21,7 +21,7 @@ router = APIRouter(prefix="/work_events", tags=["Work Events"])
 async def create_work_event(
     event_data: WorkEventCreate,
     # user: User = Depends(get_current_active_user),
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     return await crud.create_work_event(session=session, event_data=event_data)
 
@@ -30,7 +30,7 @@ async def create_work_event(
 async def update_work_event(
     event_update: WorkEventUpdate,
     event: WorkEventSchema = Depends(get_event_by_id_or_exception),
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     return await crud.update_work_event(
         session=session, event=event, event_update=event_update
@@ -40,7 +40,7 @@ async def update_work_event(
 @router.delete("/{event_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_work_event(
     event: WorkEventSchema = Depends(get_event_by_id_or_exception),
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ) -> None:
     return await crud.delete_work_event(session=session, event=event)
 
@@ -55,7 +55,7 @@ async def get_work_event_by_id(
 @router.get("/by_work_id/{work_id}/")
 async def get_work_events_by_work_id(
     work_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     return await crud.get_work_events_by_work_id(
         session=session, work_id=work_id
@@ -65,7 +65,7 @@ async def get_work_events_by_work_id(
 @router.get("/average_interval/{work_id}/")
 async def get_average_interval_km_for_event(
     work_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     events_list: list[WorkEvent] = await crud.get_work_events_by_work_id(
         session=session, work_id=work_id

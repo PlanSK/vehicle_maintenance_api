@@ -2,12 +2,12 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.work_events.crud import get_event_by_id
-from core.database import db_interface
+from core.database import db_handler
 
 
 async def get_event_by_id_or_exception(
     event_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     work_event_instance = await get_event_by_id(
         event_id=event_id, session=session

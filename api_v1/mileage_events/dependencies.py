@@ -2,12 +2,12 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.mileage_events import crud
-from core.database import db_interface
+from core.database import db_handler
 
 
 async def get_mileage_work_event_by_id_or_exception(
     mileage_event_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     mileage_event_instance = await crud.get_mileage_event_by_id(
         event_id=mileage_event_id, session=session

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.database import db_interface
+from core.database import db_handler
 from core.schemas.workpattern import (
     WorkPatternBase,
     WorkPatternSchema,
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/workpatterns", tags=["Work patterns"])
 async def create_workpattern(
     work_pattern_data: WorkPatternBase,
     # user: User = Depends(get_current_active_user),
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     return await crud.create_workpattern(
         session=session, work_pattern_data=work_pattern_data
@@ -29,7 +29,7 @@ async def create_workpattern(
 
 @router.get("/", response_model=list[WorkPatternSchema])
 async def get_all_workpatterns(
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     return await crud.get_all_workpatterns(session=session)
 
@@ -49,7 +49,7 @@ async def update_workpattern(
     workpattern: WorkPatternSchema = Depends(
         get_workppatten_by_id_or_exception
     ),
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     return await crud.update_workpattern(
         session=session,
@@ -63,7 +63,7 @@ async def delete_workpattern(
     workpattern: WorkPatternSchema = Depends(
         get_workppatten_by_id_or_exception
     ),
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ) -> None:
     return await crud.delete_workpattern(
         session=session, workpattern=workpattern

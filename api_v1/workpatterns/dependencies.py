@@ -2,12 +2,12 @@ from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.workpatterns import crud
-from core.database import db_interface
+from core.database import db_handler
 
 
 async def get_workppatten_by_id_or_exception(
     workpattern_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     workpattern_instance = await crud.get_workpattern_by_id(
         workpattern_id=workpattern_id, session=session

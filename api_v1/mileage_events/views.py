@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.database import db_interface
+from core.database import db_handler
 from core.schemas.mileage_events import (
     MileageEventCreate,
     MileageEventSchema,
@@ -20,7 +20,7 @@ router = APIRouter(prefix="/mileage_events", tags=["Mileage Events"])
 async def create_mileage_event(
     milage_event_data: MileageEventCreate,
     # user: User = Depends(get_current_active_user),
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     return await crud.create_mileage_event(
         session=session, mileage_event_data=milage_event_data
@@ -30,7 +30,7 @@ async def create_mileage_event(
 @router.get("/{vehicle_id}/")
 async def get_vehicle_mileage_events(
     vehicle_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     return await crud.get_vehicle_mileage_events(
         vehicle_id=vehicle_id, session=session
@@ -43,7 +43,7 @@ async def update_mileage_event(
     mileage_event: MileageEventSchema = Depends(
         get_mileage_work_event_by_id_or_exception
     ),
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     return await crud.update_mileage_event(
         session=session,
@@ -57,7 +57,7 @@ async def delete_mileage_event(
     mileage_event: MileageEventSchema = Depends(
         get_mileage_work_event_by_id_or_exception
     ),
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ) -> None:
     return await crud.delete_mileage_event(
         session=session, mileage_event=mileage_event

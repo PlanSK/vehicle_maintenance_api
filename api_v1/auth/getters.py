@@ -6,7 +6,7 @@ from loguru import logger
 from api_v1.users.crud import get_user_by_username
 from auth.utils import decode_jwt
 from core.config import settings
-from core.database import db_interface
+from core.database import db_handler
 from core.schemas.users import UserSchema
 
 from .exceptions import http_unauth_exception
@@ -23,8 +23,11 @@ oauth_token = OAuth2PasswordBearer(
 
 
 async def get_user_from_db_by_username(username: str):
-    async with db_interface.session_factory() as session:
-        user = await get_user_by_username(session=session, username=username)
+    async for db_session in db_handler.get_db():
+        async with db_session as session:
+            user = await get_user_by_username(
+                session=session, username=username
+            )
     if not user:
         return None
     return UserSchema.model_validate(user)
