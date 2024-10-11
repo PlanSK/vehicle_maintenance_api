@@ -26,7 +26,7 @@ async def prepare_db():
 @pytest.fixture(scope="session")
 async def async_conn() -> AsyncGenerator[AsyncClient, None]:
     async with AsyncClient(
-        transport=ASGITransport(app=app), base_url="http://localhost"  # type: ignore
+        transport=ASGITransport(app=app), base_url="http://localhost"
     ) as async_conn:
         yield async_conn
 
