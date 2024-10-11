@@ -8,7 +8,9 @@ from .exceptions import http_forbidden_exception, http_unauth_exception
 from .getters import get_active_user_from_payload, get_user_from_db_by_username
 
 
-async def auth_user_validate(username: str = Form(), password: str = Form()):
+async def auth_user_validate(
+    username: str = Form(), password: str = Form()
+) -> UserSchema:
     if not (user := await get_user_from_db_by_username(username)):
         logger.error(f"User {username!r} not found in db.")
         raise http_unauth_exception
@@ -25,7 +27,7 @@ async def auth_user_validate(username: str = Form(), password: str = Form()):
 
 async def get_current_active_user(
     user: UserSchema = Depends(get_active_user_from_payload),
-):
+) -> UserSchema:
     if user.is_active:
         return user
     logger.error(f"Inactive user {user.username!r} try to login.")
