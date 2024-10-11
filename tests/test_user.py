@@ -2,10 +2,9 @@ import random
 
 from httpx import AsyncClient
 
+from core.database import db_handler
 from core.models.user import User
 from core.schemas.users import UserCreate, UserSchema
-
-from .conftest import async_session_maker
 
 USERS_API_URL: str = "/api/v1/users"
 
@@ -21,10 +20,16 @@ async def test_create_user(
     reference_response: dict = response.json()
     user_instance = UserSchema(**reference_response)
 
-    async with async_session_maker() as session:
-        user_instance_from_db = await session.get(User, user_instance.id)
+    async for db_session in db_handler.get_db():
+        async with db_session as session:
+            user_instance_from_db = await session.get(User, user_instance.id)
     for name, value in user_instance.model_dump().items():
         assert value == getattr(user_instance_from_db, name)
+    response = await async_conn.post(
+        f"{USERS_API_URL}/",
+        json=user_create_model.model_dump(),
+    )
+    assert response.status_code == 400
 
 
 async def test_get_users(
@@ -54,7 +59,6 @@ async def test_get_user_by_username(
     response = await async_conn.get(
         f"{USERS_API_URL}/username/{test_unavailable_name}/"
     )
-    print(response.json())
     assert response.status_code == 404
 
 
@@ -70,9 +74,7 @@ async def test_get_user(
         assert response.json().get(field) == getattr(
             reference_user_model, field
         )
-    response = await async_conn.get(
-        f"{USERS_API_URL}/id/0/"
-    )
+    response = await async_conn.get(f"{USERS_API_URL}/id/0/")
     assert response.status_code == 404
 
 
@@ -87,10 +89,11 @@ async def test_update_user(
         json=test_data_for_changing,
     )
     assert response.status_code == 200
-    async with async_session_maker() as session:
-        user_instance_from_db = await session.get(
-            User, reference_user_model.id
-        )
+    async for db_session in db_handler.get_db():
+        async with db_session as session:
+            user_instance_from_db = await session.get(
+                User, reference_user_model.id
+            )
     if user_instance_from_db:
         for field, value in test_data_for_changing.items():
             if value is None:
@@ -108,10 +111,9 @@ async def test_delete_user(
         f"{USERS_API_URL}/{reference_user_model.id}/"
     )
     assert response.status_code == 204
-    async with async_session_maker() as session:
-        user_model = await session.get(User, reference_user_model.id)
-        assert user_model is None
-    response = await async_conn.delete(
-        f"{USERS_API_URL}/0/"
-    )
+    async for db_session in db_handler.get_db():
+        async with db_session as session:
+            user_model = await session.get(User, reference_user_model.id)
+    assert user_model is None
+    response = await async_conn.delete(f"{USERS_API_URL}/0/")
     assert response.status_code == 404

@@ -4,43 +4,22 @@ from typing import AsyncGenerator
 import pytest
 from faker import Faker
 from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import (
-    AsyncSession,
-    async_sessionmaker,
-    create_async_engine,
-)
 
-from core.database import db_interface
+from core.database import db_handler
 from core.models import BaseDbModel
 from core.models.user import User
 from core.schemas.users import UserCreate, UserUpdatePart
 from main import app
 
-TEST_DB_URL = "sqlite+aiosqlite:///testdb.sqlite3"
 fake = Faker()
-
-engine_test = create_async_engine(url=TEST_DB_URL, echo=False)
-async_session_maker = async_sessionmaker(
-    bind=engine_test, autoflush=False, autocommit=False, expire_on_commit=False
-)
-
-
-async def override_session_dependency() -> AsyncGenerator[AsyncSession, None]:
-    async with async_session_maker() as session:
-        yield session
-
-
-app.dependency_overrides[db_interface.scoped_session_dependency] = (
-    override_session_dependency
-)
 
 
 @pytest.fixture(autouse=True, scope="function")
 async def prepare_db():
-    async with engine_test.begin() as conn:
+    async with db_handler.engine.begin() as conn:
         await conn.run_sync(BaseDbModel.metadata.create_all)
     yield
-    async with engine_test.begin() as conn:
+    async with db_handler.engine.begin() as conn:
         await conn.run_sync(BaseDbModel.metadata.drop_all)
 
 
@@ -67,10 +46,10 @@ async def test_users_list_fixture() -> list[User]:
         )
         for id in range(1, number_of_users + 1)
     ]
-
-    async with async_session_maker() as session:
-        session.add_all(test_users_list)
-        await session.commit()
+    async for db_session in db_handler.get_db():
+        async with db_session as session:
+            session.add_all(test_users_list)
+            await session.commit()
     return test_users_list
 
 
