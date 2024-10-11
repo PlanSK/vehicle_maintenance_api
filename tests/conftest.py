@@ -1,15 +1,19 @@
+import datetime
 import random
 from typing import AsyncGenerator
 
-from asgi_lifespan import LifespanManager
 import pytest
+from asgi_lifespan import LifespanManager
 from faker import Faker
 from httpx import ASGITransport, AsyncClient
+from pydantic import field_serializer
 
+from api_v1.auth.validate import get_current_active_user
 from core.database import db_handler
 from core.models import BaseDbModel
 from core.models.user import User
-from core.schemas.users import UserCreate, UserUpdatePart
+from core.schemas.users import UserSchema
+from core.schemas.vehicles import VehicleCreate
 from main import app
 
 fake = Faker()
@@ -33,49 +37,37 @@ async def async_conn() -> AsyncGenerator[AsyncClient, None]:
         yield async_conn
 
 
-@pytest.fixture(scope="function")
-async def test_users_list_fixture() -> list[User]:
-    number_of_users = 3
-    test_users_list = [
-        User(
-            id=id,
-            username=fake.user_name(),
-            first_name=fake.first_name(),
-            last_name=fake.last_name(),
-            email=fake.email(),
-            password=fake.password(),
-            is_active=True,
-        )
-        for id in range(1, number_of_users + 1)
-    ]
-    async for db_session in db_handler.get_db():
-        async with db_session as session:
-            session.add_all(test_users_list)
-            await session.commit()
-    return test_users_list
+class TestVehicleCreate(VehicleCreate):
+    @field_serializer("vehicle_last_update_date")
+    def serialize_date(self, vehicle_last_update_date: datetime.date):
+        return str(vehicle_last_update_date)
 
 
 @pytest.fixture(scope="function")
-async def user_create_model() -> UserCreate:
-    return UserCreate(
+async def vehicle_create_model() -> TestVehicleCreate:
+    return TestVehicleCreate(
+        vin_code=fake.vin(),
+        vehicle_manufacturer=fake.name(),
+        vehicle_model=fake.random_letter(),
+        vehicle_body="",
+        vehicle_year=random.randint(2000, 2023),
+        vehicle_mileage=random.randint(1000, 100000),
+        vehicle_last_update_date=fake.date_object(),
+    )
+
+
+async def override_get_current_active_user() -> UserSchema:
+    return UserSchema(
+        id=random.randint(1, 100),
         username=fake.user_name(),
         first_name=fake.first_name(),
         last_name=fake.last_name(),
         email=fake.email(),
         password=fake.password(),
+        is_active=True,
     )
 
 
-@pytest.fixture(scope="function")
-async def unknown_user_test_name() -> str:
-    return fake.user_name()
-
-
-@pytest.fixture(scope="function")
-async def test_data_for_changing() -> dict:
-    return UserUpdatePart(
-        username=random.choice([None, fake.user_name()]),
-        first_name=random.choice([None, fake.first_name()]),
-        last_name=random.choice([None, fake.last_name()]),
-        email=random.choice([None, fake.email()]),
-    ).model_dump()
+app.dependency_overrides[get_current_active_user] = (
+    override_get_current_active_user
+)
