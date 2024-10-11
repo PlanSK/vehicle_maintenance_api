@@ -2,13 +2,13 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.auth.validate import get_current_active_user
-from core.database import db_interface
+from core.database import db_handler
 from core.schemas.users import UserSchema
 from core.schemas.vehicles import VehicleCreate, VehicleSchema, VehicleUpdate
 from core.vin import vin_code_validator
 
 from . import crud
-from .utils import get_vehicle_by_id_or_exceprion
+from .dependencies import get_vehicle_by_id_or_exceprion
 
 router = APIRouter(prefix="/vehicle", tags=["Vehicles"])
 
@@ -19,7 +19,7 @@ router = APIRouter(prefix="/vehicle", tags=["Vehicles"])
 async def create_vehicle(
     vehicle_data: VehicleCreate,
     user: UserSchema = Depends(get_current_active_user),
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     return await crud.create_vehicle(
         session=session, vehicle_data=vehicle_data, owner_id=user.id
@@ -28,25 +28,22 @@ async def create_vehicle(
 
 @router.get("/", response_model=list[VehicleSchema])
 async def get_all_vehicles(
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     return await crud.get_all_vehicles(session=session)
 
 
 @router.get("/{vehicle_id}/")
 async def get_vehicle_by_id(
-    vehicle_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    vehicle: VehicleSchema = Depends(get_vehicle_by_id_or_exceprion),
 ):
-    return await get_vehicle_by_id_or_exceprion(
-        vehicle_id=vehicle_id, session=session
-    )
+    return vehicle
 
 
 @router.get("/by_user_id/{user_id}/", response_model=list[VehicleSchema])
 async def get_users_vehicles(
     user_id: int,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     return await crud.get_users_vehicles(user_id=user_id, session=session)
 
@@ -55,7 +52,7 @@ async def get_users_vehicles(
 async def update_vehicle_partial(
     vehicle_update: VehicleUpdate,
     vehicle: VehicleSchema = Depends(get_vehicle_by_id_or_exceprion),
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     return await crud.update_vehicle(
         session=session, vehicle=vehicle, vehicle_update=vehicle_update
@@ -65,7 +62,7 @@ async def update_vehicle_partial(
 @router.delete("/{vehicle_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_user(
     vehicle: VehicleSchema = Depends(get_vehicle_by_id_or_exceprion),
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ) -> None:
     return await crud.delete_vehicle(session=session, vehicle=vehicle)
 
@@ -73,7 +70,7 @@ async def delete_user(
 @router.get("/by_vin/{vehicle_vin}/", response_model=VehicleSchema)
 async def get_vehicle_by_vin(
     vehicle_vin: str,
-    session: AsyncSession = Depends(db_interface.scoped_session_dependency),
+    session: AsyncSession = Depends(db_handler.get_db),
 ):
     try:
         vin_code_validator(vin_code=vehicle_vin)

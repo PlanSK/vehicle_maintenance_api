@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 
 from api_v1 import router as router_v1
 from core.config import settings
-from core.utils import add_workpatterns_models_to_db
+from core.lifespan import add_workpatterns_models_to_db
 
 
 @asynccontextmanager
@@ -40,6 +40,11 @@ if app.swagger_ui_oauth2_redirect_url:
     @app.get(app.swagger_ui_oauth2_redirect_url, include_in_schema=False)
     async def swagger_ui_redirect():
         return get_swagger_ui_oauth2_redirect_html()
+
+
+@app.get("/")
+async def main_page():
+    return {"message": "Vehicle maintenance API main page."}
 
 
 if __name__ == "__main__":

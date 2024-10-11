@@ -1,9 +1,4 @@
-__all__ = (
-    "DatabaseInterface",
-    "db_interface",
-    "vin_code_validator",
-    "VIN_Type"
-)
+__all__ = ("DatabaseHandler", "db_handler", "vin_code_validator", "VIN_Type")
 
-from .database import DatabaseInterface, db_interface
+from .database import DatabaseHandler, db_handler
 from .vin import VIN_Type, vin_code_validator
