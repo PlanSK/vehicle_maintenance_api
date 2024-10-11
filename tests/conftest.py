@@ -1,6 +1,7 @@
 import random
 from typing import AsyncGenerator
 
+from asgi_lifespan import LifespanManager
 import pytest
 from faker import Faker
 from httpx import ASGITransport, AsyncClient
@@ -18,7 +19,8 @@ fake = Faker()
 async def prepare_db():
     async with db_handler.engine.begin() as conn:
         await conn.run_sync(BaseDbModel.metadata.create_all)
-    yield
+    async with LifespanManager(app):
+        yield
     async with db_handler.engine.begin() as conn:
         await conn.run_sync(BaseDbModel.metadata.drop_all)
 
