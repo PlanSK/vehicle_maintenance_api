@@ -1,0 +1,51 @@
+[tool.poetry]
+name = "vehicle-api"
+version = "0.1.0"
+description = "Vehicle Maintenance API"
+authors = ["PlanSK <plansk@plans-cloud.ru>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["standard"], version = "^0.115.0"}
+fastapi-cli = "^0.0.5"
+alembic = "^1.13.3"
+loguru = "^0.7.2"
+black = "^24.10.0"
+SQLAlchemy = "^2.0.35"
+python-dotenv = "^1.0.1"
+pydantic = {extras = ["email"], version = "^2.9.2"}
+pydantic-settings = "^2.5.2"
+argon2-cffi = "^23.1.0"
+aiosqlite = "^0.20.0"
+PyJWT = "^2.9.0"
+asyncio = "^3.4.3"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+pytest-env = "^1.1.5"
+httpx = "^0.27.2"
+mypy = "^1.11.2"
+pytest-asyncio = "^0.24.0"
+faker = "^30.3.0"
+asgi-lifespan = "^2.1.0"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+pythonpath = [
+  "vehicle_api",
+  "tests"
+]
+env = [
+  "DB_FILENAME=testdb.sqlite3",
+  "DB_ECHO=0",
+  "DB_TYPE=sqlite"
+]
+
+[tool.mypy]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
