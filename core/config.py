@@ -32,9 +32,14 @@ class AuthJWT(BaseModel):
 
 
 class Settings(BaseSettings):
-    api_v1_prefix: str = "/api/v1"
+    api_v1_prefix: str
     db: SQLiteDBSettings = SQLiteDBSettings()
     auth: AuthJWT = AuthJWT()
 
 
-settings = Settings()
+settings = Settings(
+    api_v1_prefix="/api/v1",
+)
+
+if os.environ["DB_TYPE"] == "sqlite":
+    settings.db = SQLiteDBSettings()
