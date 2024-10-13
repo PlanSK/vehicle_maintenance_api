@@ -53,7 +53,9 @@ async def update_vehicle(
     vehicle: VehicleSchema,
     vehicle_update: VehicleUpdate,
 ) -> VehicleSchema:
-    for name, value in vehicle_update.model_dump(exclude_unset=True).items():
+    for name, value in vehicle_update.model_dump(
+        exclude_unset=True, exclude_none=True
+    ).items():
         setattr(vehicle, name, value)
     await session.commit()
     return vehicle
