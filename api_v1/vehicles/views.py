@@ -60,7 +60,7 @@ async def update_vehicle_partial(
 
 
 @router.delete("/{vehicle_id}/", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(
+async def delete_vehicle(
     vehicle: VehicleSchema = Depends(get_vehicle_by_id_or_exceprion),
     session: AsyncSession = Depends(db_handler.get_db),
 ) -> None:
