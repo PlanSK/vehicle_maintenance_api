@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.auth.validate import get_current_active_user
@@ -21,9 +22,15 @@ async def create_vehicle(
     user: UserSchema = Depends(get_current_active_user),
     session: AsyncSession = Depends(db_handler.get_db),
 ):
-    return await crud.create_vehicle(
-        session=session, vehicle_data=vehicle_data, owner_id=user.id
-    )
+    try:
+        return await crud.create_vehicle(
+            session=session, vehicle_data=vehicle_data, owner_id=user.id
+        )
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Incorrect incoming data.",
+        )
 
 
 @router.get("/", response_model=list[VehicleSchema])
