@@ -1,4 +1,3 @@
-import datetime
 import random
 from typing import AsyncGenerator
 
@@ -6,14 +5,14 @@ import pytest
 from asgi_lifespan import LifespanManager
 from faker import Faker
 from httpx import ASGITransport, AsyncClient
-from pydantic import field_serializer
 
 from api_v1.auth.validate import get_current_active_user
 from core.database import db_handler
 from core.models import BaseDbModel
 from core.models.user import User
+from core.models.vehicle import Vehicle
+from core.schemas import users
 from core.schemas.users import UserSchema
-from core.schemas.vehicles import VehicleCreate
 from main import app
 
 fake = Faker()
@@ -37,28 +36,9 @@ async def async_conn() -> AsyncGenerator[AsyncClient, None]:
         yield async_conn
 
 
-class TestVehicleCreate(VehicleCreate):
-    @field_serializer("vehicle_last_update_date")
-    def serialize_date(self, vehicle_last_update_date: datetime.date):
-        return str(vehicle_last_update_date)
-
-
-@pytest.fixture(scope="function")
-async def vehicle_create_model() -> TestVehicleCreate:
-    return TestVehicleCreate(
-        vin_code=fake.vin(),
-        vehicle_manufacturer=fake.name(),
-        vehicle_model=fake.random_letter(),
-        vehicle_body="",
-        vehicle_year=random.randint(2000, 2023),
-        vehicle_mileage=random.randint(1000, 100000),
-        vehicle_last_update_date=fake.date_object(),
-    )
-
-
-async def override_get_current_active_user() -> UserSchema:
-    return UserSchema(
-        id=random.randint(1, 100),
+async def get_random_user_model(id: int = random.randint(1, 100)) -> User:
+    return User(
+        id=id,
         username=fake.user_name(),
         first_name=fake.first_name(),
         last_name=fake.last_name(),
@@ -66,6 +46,71 @@ async def override_get_current_active_user() -> UserSchema:
         password=fake.password(),
         is_active=True,
     )
+
+
+@pytest.fixture(scope="function")
+async def users_list() -> list[User]:
+    number_of_users = random.randint(1, 5)
+    test_users_list = [
+        await get_random_user_model(id) for id in range(1, number_of_users + 1)
+    ]
+    return test_users_list
+
+
+@pytest.fixture(scope="function")
+async def random_user_from_list(users_list: list[User]) -> User:
+    return random.choice(users_list)
+
+
+@pytest.fixture(scope="function")
+async def vehicle_test_models_list(users_list: list[User]) -> list[Vehicle]:
+    users_id_list = [user.id for user in users_list]
+    test_users_list = [
+        Vehicle(
+            id=vehicle_id,
+            vin_code=fake.vin(),
+            vehicle_manufacturer=fake.name(),
+            vehicle_model=fake.random_letter(),
+            vehicle_body="",
+            vehicle_year=random.randint(2000, 2023),
+            vehicle_mileage=random.randint(1000, 100000),
+            vehicle_last_update_date=fake.date_object(),
+            owner_id=id,
+        )
+        for vehicle_id, id in enumerate(users_id_list, start=1)
+    ]
+
+    return test_users_list
+
+
+@pytest.fixture(scope="function")
+async def random_vehicle_from_list(
+    vehicle_test_models_list: list[Vehicle],
+) -> Vehicle:
+    return random.choice(vehicle_test_models_list)
+
+
+@pytest.fixture(scope="function")
+async def add_users_to_db(users_list: list[User]) -> None:
+    async for db_session in db_handler.get_db():
+        async with db_session as session:
+            session.add_all(users_list)
+            await session.commit()
+
+
+@pytest.fixture(scope="function")
+async def vehicles_add_to_db(
+    vehicle_test_models_list, add_users_to_db
+) -> None:
+    async for db_session in db_handler.get_db():
+        async with db_session as session:
+            session.add_all(vehicle_test_models_list)
+            await session.commit()
+
+
+async def override_get_current_active_user() -> UserSchema:
+    user_model = await get_random_user_model()
+    return UserSchema.model_validate(user_model)
 
 
 app.dependency_overrides[get_current_active_user] = (

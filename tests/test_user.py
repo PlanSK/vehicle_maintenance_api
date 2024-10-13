@@ -13,32 +13,6 @@ USERS_API_URL: str = "/api/v1/users"
 
 
 @pytest.fixture(scope="function")
-async def users_list() -> list[User]:
-    number_of_users = random.randint(1, 5)
-    test_users_list = [
-        User(
-            id=id,
-            username=fake.user_name(),
-            first_name=fake.first_name(),
-            last_name=fake.last_name(),
-            email=fake.email(),
-            password=fake.password(),
-            is_active=True,
-        )
-        for id in range(1, number_of_users + 1)
-    ]
-    return test_users_list
-
-
-@pytest.fixture(scope="function")
-async def add_users_to_db(users_list: list[User]) -> None:
-    async for db_session in db_handler.get_db():
-        async with db_session as session:
-            session.add_all(users_list)
-            await session.commit()
-
-
-@pytest.fixture(scope="function")
 async def user_create_model() -> UserCreate:
     return UserCreate(
         username=fake.user_name(),
@@ -47,11 +21,6 @@ async def user_create_model() -> UserCreate:
         email=fake.email(),
         password=fake.password(),
     )
-
-
-@pytest.fixture(scope="function")
-async def unknown_user_test_name() -> str:
-    return fake.user_name()
 
 
 @pytest.fixture(scope="function")
@@ -81,11 +50,10 @@ async def test_create_user(
 
 
 async def test_create_duplicated_user(
-    users_list: list[User], add_users_to_db, async_conn: AsyncClient
+    random_user_from_list, add_users_to_db, async_conn: AsyncClient
 ):
-    existed_user = random.choice(users_list)
     create_schema = UserCreate.model_validate(
-        existed_user, from_attributes=True
+        random_user_from_list, from_attributes=True
     )
     response = await async_conn.post(
         f"{USERS_API_URL}/",
@@ -94,72 +62,86 @@ async def test_create_duplicated_user(
     assert response.status_code == 400
 
 
+async def test_create_blank_user(async_conn: AsyncClient):
+    response = await async_conn.post(
+        f"{USERS_API_URL}/",
+        json={},
+    )
+    assert response.status_code == 422
+
+
 async def test_get_users(
     users_list: list[User], add_users_to_db, async_conn: AsyncClient
 ):
     response = await async_conn.get(f"{USERS_API_URL}/")
     assert response.status_code == 200
-    result: list[dict] = response.json()
-    assert len(result) == len(users_list)
-    for user in users_list:
-        for user_dict in result:
-            if user_dict.get("id") == user.id:
-                assert UserSchema(**user_dict) == UserSchema.model_validate(
-                    user
-                )
+    response_reference_list = sorted(
+        [UserSchema.model_validate(user_schema) for user_schema in users_list],
+        key=lambda x: x.id,
+    )
+    response_schemas_list = sorted(
+        [UserSchema(**user_schema) for user_schema in response.json()],
+        key=lambda x: x.id,
+    )
+    assert response_schemas_list == response_reference_list
+
+
+async def test_get_blank_users_list(async_conn: AsyncClient):
+    response = await async_conn.get(f"{USERS_API_URL}/")
+    assert response.status_code == 200
+    assert response.json() == []
 
 
 async def test_get_user_by_username(
-    users_list: list[User], add_users_to_db, async_conn: AsyncClient
+    random_user_from_list, add_users_to_db, async_conn: AsyncClient
 ):
-    reference_user_name = random.choice(users_list).username
     response = await async_conn.get(
-        f"{USERS_API_URL}/username/{reference_user_name}/"
+        f"{USERS_API_URL}/username/{random_user_from_list.username}/"
     )
     assert response.status_code == 200
 
 
-async def test_get_nonexistent_user_by_name(
-    unknown_user_test_name: str, async_conn: AsyncClient
-):
+async def test_get_nonexistent_user_by_name(async_conn: AsyncClient):
     response = await async_conn.get(
-        f"{USERS_API_URL}/username/{unknown_user_test_name}/"
+        f"{USERS_API_URL}/username/{fake.user_name()}/"
     )
     assert response.status_code == 404
 
 
 async def test_get_user(
-    users_list: list[User], add_users_to_db, async_conn: AsyncClient
+    random_user_from_list, add_users_to_db, async_conn: AsyncClient
 ):
-    user_model = random.choice(users_list)
-    response = await async_conn.get(f"{USERS_API_URL}/id/{user_model.id}/")
+    response = await async_conn.get(
+        f"{USERS_API_URL}/id/{random_user_from_list.id}/"
+    )
     assert response.status_code == 200
     assert UserSchema(**response.json()) == UserSchema.model_validate(
-        user_model
+        random_user_from_list
     )
 
 
 async def test_get_nonexistent_user(async_conn: AsyncClient):
-    response = await async_conn.get(f"{USERS_API_URL}/id/0/")
+    response = await async_conn.get(
+        f"{USERS_API_URL}/id/{random.randint(1, 100)}/"
+    )
     assert response.status_code == 404
 
 
 async def test_update_user(
-    users_list: list[User],
+    random_user_from_list,
     add_users_to_db,
     user_data_for_changing: dict,
     async_conn: AsyncClient,
 ):
-    reference_user_model = random.choice(users_list)
     response = await async_conn.patch(
-        f"{USERS_API_URL}/{reference_user_model.id}/",
+        f"{USERS_API_URL}/{random_user_from_list.id}/",
         json=user_data_for_changing,
     )
     assert response.status_code == 200
     async for db_session in db_handler.get_db():
         async with db_session as session:
             user_instance_from_db = await session.get(
-                User, reference_user_model.id
+                User, random_user_from_list.id
             )
     if user_instance_from_db:
         for field, value in user_data_for_changing.items():
@@ -170,7 +152,7 @@ async def test_update_user(
         raise AssertionError("User instance is not in db.")
 
 
-async def test_update_nonexistent_user(
+async def test_update_non_existent_user(
     user_data_for_changing: dict, async_conn: AsyncClient
 ):
     response = await async_conn.patch(
@@ -180,17 +162,28 @@ async def test_update_nonexistent_user(
     assert response.status_code == 404
 
 
-async def test_delete_user(
-    users_list: list[User], add_users_to_db, async_conn: AsyncClient
+async def test_blank_update_user(
+    random_user_from_list,
+    add_users_to_db,
+    async_conn: AsyncClient,
 ):
-    reference_user_model = random.choice(users_list)
+    response = await async_conn.patch(
+        f"{USERS_API_URL}/{random_user_from_list.id}/",
+        json={},
+    )
+    assert response.status_code == 200
+
+
+async def test_delete_user(
+    random_user_from_list, add_users_to_db, async_conn: AsyncClient
+):
     response = await async_conn.delete(
-        f"{USERS_API_URL}/{reference_user_model.id}/"
+        f"{USERS_API_URL}/{random_user_from_list.id}/"
     )
     assert response.status_code == 204
     async for db_session in db_handler.get_db():
         async with db_session as session:
-            user_model = await session.get(User, reference_user_model.id)
+            user_model = await session.get(User, random_user_from_list.id)
     assert user_model is None
 
 
