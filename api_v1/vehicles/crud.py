@@ -31,7 +31,7 @@ async def get_all_vehicles(session: AsyncSession) -> list[Vehicle]:
     return vehicles_list
 
 
-async def get_users_vehicles(
+async def get_user_vehicles(
     user_id: int, session: AsyncSession
 ) -> list[Vehicle]:
     statement = (

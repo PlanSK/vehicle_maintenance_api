@@ -45,7 +45,7 @@ async def get_user_vehicles(
     user_id: int,
     session: AsyncSession = Depends(db_handler.get_db),
 ):
-    return await crud.get_users_vehicles(user_id=user_id, session=session)
+    return await crud.get_user_vehicles(user_id=user_id, session=session)
 
 
 @router.patch("/{vehicle_id}/")
@@ -79,4 +79,10 @@ async def get_vehicle_by_vin(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="VIN Code format is incorrect or checksum is not valid.",
         )
-    return await crud.get_vehicle_by_vin(session=session, vin=vehicle_vin)
+    result = await crud.get_vehicle_by_vin(session=session, vin=vehicle_vin)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Vehicle with VIN {vehicle_vin} not found.",
+        )
+    return result
