@@ -21,7 +21,14 @@ async def create_work(
     return await crud.create_work(session=session, work_data=work_data)
 
 
-@router.get("/{vehicle_id}/")
+@router.get("/{work_id}/")
+async def get_work_by_id(
+    work: WorkSchema = Depends(get_work_by_id_or_exception),
+):
+    return work
+
+
+@router.get("/vehicle_id/{vehicle_id}/")
 async def get_works_by_vehice_id(
     vehicle_id: int,
     session: AsyncSession = Depends(db_handler.get_db),
@@ -31,14 +38,7 @@ async def get_works_by_vehice_id(
     )
 
 
-@router.get("/{work_id}/")
-async def get_work_by_id(
-    work: WorkSchema = Depends(get_work_by_id_or_exception),
-):
-    return work
-
-
-@router.patch("/{workpattern_id}/")
+@router.patch("/{work_id}/")
 async def update_work(
     work_update: WorkUpdate,
     work: WorkSchema = Depends(get_work_by_id_or_exception),

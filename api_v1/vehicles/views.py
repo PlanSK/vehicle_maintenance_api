@@ -41,7 +41,7 @@ async def get_vehicle_by_id(
 
 
 @router.get("/by_user_id/{user_id}/", response_model=list[VehicleSchema])
-async def get_users_vehicles(
+async def get_user_vehicles(
     user_id: int,
     session: AsyncSession = Depends(db_handler.get_db),
 ):
