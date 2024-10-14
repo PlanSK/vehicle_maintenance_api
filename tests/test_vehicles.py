@@ -1,4 +1,5 @@
 import datetime
+import json
 import random
 
 import pytest
@@ -15,15 +16,9 @@ from .conftest import fake
 VEHICLES_API_URL: str = "/api/v1/vehicle"
 
 
-class VehicleTestCreate(VehicleCreate):
-    @field_serializer("vehicle_last_update_date")
-    def serialize_date(self, vehicle_last_update_date: datetime.date):
-        return str(vehicle_last_update_date)
-
-
 @pytest.fixture(scope="function")
-async def vehicle_create_model() -> VehicleTestCreate:
-    return VehicleTestCreate(
+async def vehicle_create_dict() -> dict:
+    return json.loads(VehicleCreate(
         vin_code=fake.vin(),
         vehicle_manufacturer=fake.name(),
         vehicle_model=fake.random_letter(),
@@ -31,7 +26,7 @@ async def vehicle_create_model() -> VehicleTestCreate:
         vehicle_year=random.randint(2000, 2023),
         vehicle_mileage=random.randint(1000, 100000),
         vehicle_last_update_date=fake.date_object(),
-    )
+    ).model_dump_json())
 
 
 @pytest.fixture(scope="function")
@@ -46,9 +41,9 @@ async def vehicle_data_for_changing() -> dict:
     ).model_dump()
 
 
-async def test_create_vehicle(vehicle_create_model, async_conn: AsyncClient):
+async def test_create_vehicle(vehicle_create_dict, async_conn: AsyncClient):
     response = await async_conn.post(
-        f"{VEHICLES_API_URL}/", json=vehicle_create_model.model_dump()
+        f"{VEHICLES_API_URL}/", json=vehicle_create_dict
     )
     assert response.status_code == 201
     vehicle_from_response = VehicleSchema(**response.json())
@@ -67,12 +62,12 @@ async def test_create_duplicated_vehicle(
     vehicles_add_to_db,
     async_conn: AsyncClient,
 ):
-    create_schema = VehicleTestCreate.model_validate(
+    create_schema = VehicleCreate.model_validate(
         random_vehicle_from_list, from_attributes=True
     )
     response = await async_conn.post(
         f"{VEHICLES_API_URL}/",
-        json=create_schema.model_dump(),
+        json=json.loads(create_schema.model_dump_json()),
     )
     assert response.status_code == 400
 
