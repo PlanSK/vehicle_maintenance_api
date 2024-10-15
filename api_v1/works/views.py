@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from sqlalchemy.exc import IntegrityError
 
 from core.database import db_handler
 from core.schemas.works import WorkBase, WorkSchema, WorkUpdate
@@ -18,7 +20,13 @@ async def create_work(
     # user: User = Depends(get_current_active_user),
     session: AsyncSession = Depends(db_handler.get_db),
 ):
-    return await crud.create_work(session=session, work_data=work_data)
+    try:
+        return await crud.create_work(session=session, work_data=work_data)
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Incorrect incoming data.",
+        )
 
 
 @router.get("/{work_id}/")
