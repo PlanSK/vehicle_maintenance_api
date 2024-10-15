@@ -11,7 +11,7 @@ from core.database import db_handler
 from core.models import BaseDbModel
 from core.models.user import User
 from core.models.vehicle import Vehicle
-from core.schemas import users
+from core.models.works import Work, WorkType
 from core.schemas.users import UserSchema
 from main import app
 
@@ -106,6 +106,44 @@ async def vehicles_add_to_db(
         async with db_session as session:
             session.add_all(vehicle_test_models_list)
             await session.commit()
+
+
+@pytest.fixture(scope="function")
+async def works_test_list(
+    vehicle_test_models_list: list[Vehicle],
+) -> list[Work]:
+    works_list = []
+    id = 1
+    for vehicle in vehicle_test_models_list:
+        for _ in range(1, random.randint(2, 10)):
+            works_list.append(
+                Work(
+                    id=id,
+                    title=fake.text(max_nb_chars=80),
+                    interval_month=random.randint(1, 12),
+                    interval_km=random.randint(1000, 100000),
+                    work_type=WorkType.MAINTENANCE,
+                    note=random.choice([fake.text(max_nb_chars=20), ""]),
+                    vehicle_id=vehicle.id,
+                )
+            )
+            id += 1
+    return works_list
+
+
+@pytest.fixture(scope="function")
+async def works_add_to_db(
+    vehicles_add_to_db, works_test_list: list[Work]
+) -> None:
+    async for db_session in db_handler.get_db():
+        async with db_session as session:
+            session.add_all(works_test_list)
+            await session.commit()
+
+
+@pytest.fixture(scope="function")
+async def random_work_model(works_test_list) -> Work:
+    return random.choice(works_test_list)
 
 
 async def override_get_current_active_user() -> UserSchema:
