@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api_v1.auth.validate import get_current_active_user
@@ -21,9 +22,15 @@ async def create_vehicle(
     user: UserSchema = Depends(get_current_active_user),
     session: AsyncSession = Depends(db_handler.get_db),
 ):
-    return await crud.create_vehicle(
-        session=session, vehicle_data=vehicle_data, owner_id=user.id
-    )
+    try:
+        return await crud.create_vehicle(
+            session=session, vehicle_data=vehicle_data, owner_id=user.id
+        )
+    except IntegrityError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Incorrect incoming data.",
+        )
 
 
 @router.get("/", response_model=list[VehicleSchema])
@@ -41,11 +48,11 @@ async def get_vehicle_by_id(
 
 
 @router.get("/by_user_id/{user_id}/", response_model=list[VehicleSchema])
-async def get_users_vehicles(
+async def get_user_vehicles(
     user_id: int,
     session: AsyncSession = Depends(db_handler.get_db),
 ):
-    return await crud.get_users_vehicles(user_id=user_id, session=session)
+    return await crud.get_user_vehicles(user_id=user_id, session=session)
 
 
 @router.patch("/{vehicle_id}/")
@@ -60,7 +67,7 @@ async def update_vehicle_partial(
 
 
 @router.delete("/{vehicle_id}/", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_user(
+async def delete_vehicle(
     vehicle: VehicleSchema = Depends(get_vehicle_by_id_or_exceprion),
     session: AsyncSession = Depends(db_handler.get_db),
 ) -> None:
@@ -79,4 +86,10 @@ async def get_vehicle_by_vin(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="VIN Code format is incorrect or checksum is not valid.",
         )
-    return await crud.get_vehicle_by_vin(session=session, vin=vehicle_vin)
+    result = await crud.get_vehicle_by_vin(session=session, vin=vehicle_vin)
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Vehicle with VIN {vehicle_vin} not found.",
+        )
+    return result

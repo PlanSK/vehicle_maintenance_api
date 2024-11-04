@@ -31,7 +31,7 @@ async def get_all_vehicles(session: AsyncSession) -> list[Vehicle]:
     return vehicles_list
 
 
-async def get_users_vehicles(
+async def get_user_vehicles(
     user_id: int, session: AsyncSession
 ) -> list[Vehicle]:
     statement = (
@@ -53,7 +53,9 @@ async def update_vehicle(
     vehicle: VehicleSchema,
     vehicle_update: VehicleUpdate,
 ) -> VehicleSchema:
-    for name, value in vehicle_update.model_dump(exclude_unset=True).items():
+    for name, value in vehicle_update.model_dump(
+        exclude_unset=True, exclude_none=True
+    ).items():
         setattr(vehicle, name, value)
     await session.commit()
     return vehicle

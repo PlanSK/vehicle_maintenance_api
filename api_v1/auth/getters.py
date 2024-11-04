@@ -22,7 +22,7 @@ oauth_token = OAuth2PasswordBearer(
 )
 
 
-async def get_user_from_db_by_username(username: str):
+async def get_user_from_db_by_username(username: str) -> UserSchema | None:
     async for db_session in db_handler.get_db():
         async with db_session as session:
             user = await get_user_by_username(
