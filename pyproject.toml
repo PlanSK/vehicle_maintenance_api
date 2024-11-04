@@ -1,6 +1,7 @@
 [tool.poetry]
-name = "vehicle-api"
+name = "vehicle-maintenance-api"
 version = "0.1.0"
+package-mode = false
 description = "Vehicle Maintenance API"
 authors = ["PlanSK <plansk@plans-cloud.ru>"]
 readme = "README.md"
