@@ -11,6 +11,7 @@ from core.database import db_handler
 from core.models import BaseDbModel
 from core.models.user import User
 from core.models.vehicle import Vehicle
+from core.models.workpattern import WorkPattern
 from core.models.works import Work, WorkType
 from core.schemas.users import UserSchema
 from main import app
@@ -144,6 +145,29 @@ async def works_add_to_db(
 @pytest.fixture(scope="function")
 async def random_work_model(works_test_list) -> Work:
     return random.choice(works_test_list)
+
+
+@pytest.fixture(scope="function")
+async def workpattern_model_list() -> list[WorkPattern]:
+    number_of_models = random.randint(1, 10)
+    models_list = [
+        WorkPattern(
+            id=id,
+            title=fake.text(max_nb_chars=80),
+            interval_month=random.randint(1, 12),
+            interval_km=random.randint(1000, 100000),
+        )
+        for id in range(1, number_of_models + 1)
+    ]
+    return models_list
+
+
+@pytest.fixture(scope="function")
+async def add_workpattern_to_db(workpattern_model_list: list[WorkPattern]):
+    async for db_session in db_handler.get_db():
+        async with db_session as session:
+            session.add_all(workpattern_model_list)
+            await session.commit()
 
 
 async def override_get_current_active_user() -> UserSchema:
